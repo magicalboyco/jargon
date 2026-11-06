@@ -2,7 +2,7 @@ name: Jargon alpha checks
 on:
   pull_request:
   push:
-    branches: [main, feature/explicit-word-direction, feature/tile-drag-to-board, feature/drag-qa-cursor, feature/mobile-turn-flow-qa, feature/offline-bot-engine]
+    branches: [main, feature/explicit-word-direction, feature/tile-drag-to-board, feature/drag-qa-cursor, feature/mobile-turn-flow-qa, feature/offline-bot-engine, feature/rack-drag-reorder-recall]
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -64,3 +64,6 @@ jobs:
 
       - name: Offline opponent browser end-to-end
         run: python tests/bot_ui_smoke.py
+
+      - name: Rack drag reorder and precision recall
+        run: python tests/rack_reorder_smoke.py
