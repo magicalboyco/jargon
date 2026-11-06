@@ -8,7 +8,7 @@ if font_css.exists():
     css=font_css.read_text(encoding='utf-8')+'\n'+css
 js_parts=['engine.js','dictionary.js']
 js_parts.extend(f'enable/{letter}.js' for letter in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ')
-js_parts.extend(['dictionary-finalize.js','ui.js'])
+js_parts.extend(['dictionary-finalize.js','bot.js','ui.js'])
 js='\n'.join((root/'src'/name).read_text(encoding='utf-8') for name in js_parts)
 assert shell.count('/*__CSS__*/')==1 and shell.count('/*__JS__*/')==1
 output=shell.replace('/*__CSS__*/',css).replace('/*__JS__*/',js)
