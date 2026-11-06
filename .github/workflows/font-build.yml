@@ -1,0 +1,33 @@
+name: Build pinned Fraunces font asset
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  font:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/pr9-enable-fraunces
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install build-only font tools
+        run: python -m pip install "fonttools[woff]==4.59.1" "brotli==1.1.0"
+      - name: Generate verified licensed subset
+        run: python tools/prepare_font.py
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build private, self-contained offline HTML
+        run: python tools/build.py
+      - name: Commit generated offline font and HTML
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/fonts/fraunces-subset.css index.html
+          if ! git diff --cached --quiet; then
+            git commit -m "Build pinned Fraunces subset and embed in offline Jargon"
+            git push origin HEAD:feature/pr9-enable-fraunces
+          fi

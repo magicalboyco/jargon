@@ -51,7 +51,7 @@ function shuffled(items, rand) { const a = [...items]; for (let i = a.length - 1
     [a[i], a[j]] = [a[j], a[i]];
 } return a; }
 function draw(bag, n) { return bag.splice(0, Math.min(n, bag.length)); }
-function createGame(rand=Math.random,dictionaryVersion='starter-demo-1',mode='classic') {
+function createGame(rand=Math.random,dictionaryVersion=DICTIONARY_VERSION,mode='classic') {
     const bag=shuffled(fullBag(mode),rand);
     return {board:Array.from({length:SIZE},()=>Array(SIZE).fill(null)),bag,
         racks:[draw(bag,7),draw(bag,7)],scores:[0,0],turn:0,consecutiveScoreless:0,

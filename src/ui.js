@@ -117,7 +117,7 @@ function tapSquare(row,col){
  if(tile.blank){pendingBlank={row,col};$('blank-letter').value='A';$('blank-picker').showModal();$('blank-letter').focus();return;}
  placeSelected(row,col);
 }
-function commit(move){try{const result=play(state,move,validWord);state=result.state;draft=[];selected=null;swapping=false;swapIds.clear();persist();render();if(move.kind==='play')say(`Played ${result.words.map(x=>x.word).join(' + ')} for ${result.score} points!`);else say(`${move.kind} completed.`);if(!state.finished)showDialog('Next player','Pass the device to Player '+(state.turn+1)+'. Their letters will appear when they tap Ready.');else showDialog('Game over',state.winner==='tie'?'It’s a tie!':`Player ${state.winner+1} wins. Final scores: ${state.scores.join(' – ')}.`);}catch(e){say(e.message);}}
+function commit(move){try{const result=play(state,move,w=>validWord(w,state.dictionaryVersion||'starter-demo-1'));state=result.state;draft=[];selected=null;swapping=false;swapIds.clear();persist();render();if(move.kind==='play')say(`Played ${result.words.map(x=>x.word).join(' + ')} for ${result.score} points!`);else say(`${move.kind} completed.`);if(!state.finished)showDialog('Next player','Pass the device to Player '+(state.turn+1)+'. Their letters will appear when they tap Ready.');else showDialog('Game over',state.winner==='tie'?'It’s a tie!':`Player ${state.winner+1} wins. Final scores: ${state.scores.join(' – ')}.`);}catch(e){say(e.message);}}
 function showDialog(title,message){$('dialog-title').textContent=title;$('dialog-message').textContent=message;$('dialog').showModal();}
 $('play').addEventListener('click',()=>{if(!draft.length){say('Place at least one letter first.');return;}commit({kind:'play',placements:draft});});
 $('recall').addEventListener('click',()=>{draft=[];selected=null;persist();render();say('All letters returned to rack.');});
@@ -135,14 +135,14 @@ $('game-mode').addEventListener('change',e=>{
  const mode=e.target.value;
  if(!(mode in MODES)||mode===state.mode)return;
  if(!confirm('Start a NEW '+MODES[mode]+' game? The current game will be replaced. Export it first if you want to keep it.')){e.target.value=state.mode;return;}
- state=createGame(Math.random,'starter-demo-1',mode);
+ state=createGame(Math.random,DICTIONARY_VERSION,mode);
  draft=[];selected=null;swapping=false;swapIds.clear();persist();render();
  say(mode==='blocks'?'Block Flip started: select a block, then tap ↻ Flip to use its alternate letter.':'Classic game started: no flipped letters.');
 });
 $('shuffle').addEventListener('click',()=>{state.racks[state.turn].sort(()=>Math.random()-.5);persist();render();});
 $('theme').addEventListener('click',()=>{theme=theme==='playful'?'sophisticated':'playful';safeStorage.set(THEME,theme);render();});
-$('rules').addEventListener('click',()=>showDialog('How to play',`Classic uses familiar 7-tile word-game rules. Block Flip uses 104 dual-face blocks: select a rack tile and tap Flip to change its letter. Its score becomes max(1, floor(original points/2)); blanks stay at zero. Flips are free before submission and locked when played. You may recall a staged tile to flip it. Every word must connect. DL/TL multiply letters; DW/TW multiply words. Use all 7 tiles for +40 points. Demo dictionary: ${dictionarySize} words; incomplete alpha list.`));
-$('reset').addEventListener('click',()=>{if(!confirm('Delete the current local game permanently and start fresh?'))return;safeStorage.remove(STORE);state=createGame(Math.random,'starter-demo-1',state.mode);draft=[];selected=null;swapping=false;swapIds.clear();persist();render();say('Local game deleted. New game ready.');});
+$('rules').addEventListener('click',()=>showDialog('How to play',`Classic uses familiar 7-tile word-game rules. Block Flip uses 104 dual-face blocks: select a rack tile and tap Flip to change its letter. Its score becomes max(1, floor(original points/2)); blanks stay at zero. Flips are free before submission and locked when played. You may recall a staged tile to flip it. Every word must connect. DL/TL multiply letters; DW/TW multiply words. Use all 7 tiles for +40 points. Offline ENABLE2K dictionary: ${dictionarySize.toLocaleString()} words (2–15 letters).`));
+$('reset').addEventListener('click',()=>{if(!confirm('Delete the current local game permanently and start fresh?'))return;safeStorage.remove(STORE);state=createGame(Math.random,DICTIONARY_VERSION,state.mode);draft=[];selected=null;swapping=false;swapIds.clear();persist();render();say('Local game deleted. New game ready.');});
 $('import').addEventListener('click',()=>$('import-file').click());
 $('import-file').addEventListener('change',async e=>{
  const f=e.target.files?.[0];if(!f)return;
