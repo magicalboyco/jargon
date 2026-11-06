@@ -448,3 +448,8 @@ body.bot-turn #shuffle,body.bot-turn #flip{pointer-events:none;opacity:.5;}
   .mode-strip .mode-picker{flex:1 1 0;min-width:0;font-size:0;gap:0;}
   .mode-strip .mode-picker select{width:100%;max-width:100%;min-width:0;font-size:11px;}
 }
+
+/* Deliberate tile touch gestures; zoom remains available over the board itself. */
+#rack .block, #board .sq.occupied:has(.block.placed) {touch-action:none;}
+#rack.rack-drop-target {outline:2px solid var(--teal);outline-offset:2px;border-radius:9px;}
+body.playful #rack.rack-drop-target {outline-color:var(--blue);}
