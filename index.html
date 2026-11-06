@@ -217,9 +217,191 @@ body.playful .sq {overflow:hidden;}
  .block,.sq,.controls button{transition:none!important;animation:none!important;}
 }
 
+
+/* JARGON BRAND FINISH — original painted-block design system.
+   No remote assets, font calls, scripts, or gameplay rule changes. */
+:root{
+ --j-canvas:#f3ecdf;
+ --j-paper:#fffaf0;
+ --j-navy:#173952;
+ --j-blue:#276f92;
+ --j-red:#bc4835;
+ --j-green:#367454;
+ --j-yellow:#d9a125;
+ --j-birch:#eed7ad;
+ --j-maple:#ddb984;
+ --j-outline:#b58e5e;
+ --j-char:#302b29;
+ --j-display: 'Cooper Black','Bookman Old Style','Bookman',Georgia,serif;
+}
+html,body{background:var(--j-canvas);color:var(--j-char)}
+body{background:radial-gradient(ellipse at 50% -120px,#fff9ea 0,#f0e8d9 75%);}
+.shell{max-width:1020px;}
+.top{
+ background:linear-gradient(160deg,#244d63,#153c53 65%,#123348);
+ border-bottom:3px solid #b58b54;
+ box-shadow:inset 0 1px 0 #ffffff24;
+}
+.top .eyebrow{font-size:8px;letter-spacing:.19em;color:#e1c99a;font-weight:800;}
+.top h1{display:flex;align-items:center;gap:0;font-family:var(--j-display);font-weight:900;letter-spacing:-.065em;text-shadow:0 2px 0 #09273866;}
+.brand-block{
+ position:relative;isolation:isolate;display:inline-grid;place-items:center;
+ width:1.13em;height:1.13em;margin-right:.08em;
+ background:linear-gradient(135deg,#d8ab71 0%,#bb8554 14%,#9c663e 100%);
+ border-radius:5px;box-shadow:inset 1px 1px #fae1ae,2px 3px 0 #08273884;
+ transform:rotate(-6deg);font-size:.72em;line-height:1;
+ color:#196585;-webkit-text-stroke:.3px currentColor;text-shadow:none;
+}
+.brand-block::before{content:'';position:absolute;inset:9%;z-index:-1;border-radius:3px;
+ background:linear-gradient(125deg,#fff2ce 0%,#f3d5a7 80%,#e5bd8b);
+ border:3px solid #26758e;box-shadow:inset 0 0 0 1px #fdf0d9;}
+.brand-name{font-variation-settings:'SOFT' 100,'WONK' 1;font-weight:900;-webkit-text-stroke:.55px #fff9e5;}
+.logo-dot{color:#efbd57;text-shadow:0 2px 0 #112c41;}
+.icon-button{background:#fffaf012;border:1px solid #c6d8d66b;border-radius:10px;color:#fff5dc;box-shadow:inset 0 1px #fff4d522;}
+.icon-button:hover{background:#ffffff29;}
+.game{border-color:#cdbb9c;box-shadow:0 11px 24px #4a37221c;background:#fff9ed;}
+.scorebar{background:linear-gradient(180deg,#fdfaf1,#f8f1e4);border-bottom:2px solid #cbb493;}
+.player{background:#eee6d6;border:1px solid #e0d1ba;box-shadow:inset 0 1px #fff9f0;border-radius:8px;}
+.player.active{background:#f9e6b7;border-color:#c5943a;box-shadow:inset 0 0 0 1px #dca842,0 2px 0 #d4b77e;}
+.player-label,.rack-heading{color:#71624f;letter-spacing:.12em;}
+.player strong{font-family:var(--j-display);font-weight:900;color:#4b3629;font-size:24px;-webkit-text-stroke:.4px currentColor;}
+.turn-center{color:#3d4c50;font-weight:850;}
+.turn-center small{color:#776c5b;}
+.board-wrap{
+ padding:7px;
+ background:
+   repeating-linear-gradient(110deg,transparent 0 19px,#aa785522 20px,transparent 22px,transparent 41px),
+   linear-gradient(120deg,#dcb588,#c18e64 50%,#dbb589);
+ border-bottom:2px solid #b38c63;
+ box-shadow:inset 0 3px 8px #603d1a55,inset 0 -2px 0 #f9e5c8;
+}
+.board{background:#a67d59;box-shadow:0 0 0 1px #8b6447,0 2px 5px #64482735;border-radius:2px;}
+.sq{background:#fbf5e9;box-shadow:inset 0 1px 0 #ffffffd6,inset 0 -1px 0 #deccb0;border:0;border-radius:2px;}
+.sq.premium-DL{background:#c8e1ed;color:#326280;}
+.sq.premium-TL{background:#b6d8c1;color:#326b4a;}
+.sq.premium-DW{background:#f0c9bc;color:#994c3e;}
+.sq.premium-TW{background:#eac58a;color:#8d5a22;}
+.sq.center{background:#efddbd;color:#b06a34;}
+.sq .bonus{font-weight:900;letter-spacing:-.03em;text-shadow:0 1px 0 #fff9ee99;}
+/* Sophisticated: real-looking uniform birch tile with shallow bevel and recessed face. */
+.block{
+ position:relative;isolation:isolate;overflow:hidden;
+ border-radius:3px;border:1px solid #b99261;
+ color:#4f3025;
+ background:linear-gradient(145deg,#f8e8c6 0%,#e1bf8c 75%,#c89d69 100%);
+ box-shadow:inset 1px 1px 0 #fff2d9,inset -1px -2px 0 #bb8852,0 2px 2px #44240d3b;
+ font-family:var(--j-display);font-weight:900;
+ -webkit-text-stroke:.55px currentColor;
+ text-shadow:0 1px 0 #fff4e1;
+}
+.block::before{
+ content:'';position:absolute;inset:0;z-index:-1;pointer-events:none;opacity:.42;
+ background:repeating-linear-gradient(94deg,transparent 0 7px,#b98c5524 8px,transparent 9px 14px),
+ radial-gradient(ellipse 35% 80% at 92% 20%,transparent 42%,#996e4a22 45%,transparent 53%);
+}
+.block .face{
+ display:grid;place-items:center;
+ width:90%;height:90%;margin:auto;
+ background:linear-gradient(138deg,#fff1d3,#f5deb5 65%,#e9c99c);
+ border:1px solid #d0af80;
+ border-radius:2px;
+ box-shadow:inset 0 1px 1px #fffdf3,inset 0 -1px 1px #bf9466;
+ text-shadow:0 1px #fff6e6;
+}
+.block .points{z-index:2;color:#6d4b33;-webkit-text-stroke:0;font-family:ui-sans-serif,system-ui,sans-serif;font-size:9px;text-shadow:0 1px #fff5dc;}
+.block.selected{outline:3px solid #267e9d;outline-offset:1px;box-shadow:0 4px 7px #263b3c47;}
+.block.placed{outline:2px solid #246b50;outline-offset:-2px;}
+.rack-area{background:linear-gradient(180deg,#fff9ee,#f4ead9);border-top:1px solid #d6be9a;padding:11px 12px 14px;}
+.rack-heading{font-weight:900;}
+.rack{padding:4px 0 7px;gap:6px;}
+.rack .block{font-size:clamp(24px,6vw,37px);border-radius:6px;box-shadow:inset 1px 1px 0 #fff1d0,inset -2px -3px 0 #b78b52,0 4px 0 #a87847,0 5px 5px #3b2b203b;}
+.rack .block .face{height:84%;width:84%;border-radius:4px;}
+.rack .block .points{font-size:9px;bottom:4%;right:6%;}
+.hint{color:#756657;}
+.text-button{color:#276783;}
+.controls{gap:6px;}
+.controls button{border-radius:9px;font-weight:850;box-shadow:inset 0 1px 0 #ffffff7a,0 2px 0 #ae987f;}
+.controls .secondary{background:#f2e6d0;color:#5a4939;border:1px solid #d7c2a2;}
+.controls .primary{background:linear-gradient(180deg,#356f85,#22556e);color:#fff8e9;box-shadow:inset 0 1px #6ba3b5,0 3px 0 #184455;}
+.controls .primary:hover{background:#205a77;}
+.sidebar .panel{background:#fffbf2;border-color:#ddcbb2;box-shadow:0 2px 7px #5c3c1e0b;}
+.panel h3,.sidebar .panel h3{font-family:var(--j-display);-webkit-text-stroke:.35px currentColor;}
+/* PLAYFUL: brightly painted enamel edges surrounding ivory inset, with 3D sides.
+   Each tile gets a deterministic pigment via existing data-color attribute. */
+body.playful{--paint:#1e7595;--paint-dark:#12546d;--letter-ink:#1c7290;}
+body.playful .block{--paint:#1b7294;--paint-dark:#11536d;--letter-ink:#166384;
+ border:0;background:linear-gradient(145deg,#f8dfb0 0%,#b87e48 96%);
+ border-radius:6px;box-shadow:inset 1px 1px #ffedc9,2px 3px 0 #90623e,3px 4px 3px #3b2b2150;
+ color:var(--letter-ink);-webkit-text-stroke:.75px currentColor;overflow:visible;
+}
+body.playful .block[data-color='1']{--paint:#d44d38;--paint-dark:#953529;--letter-ink:#bd3d2e;color:var(--letter-ink);}
+body.playful .block[data-color='2']{--paint:#37835b;--paint-dark:#23533c;--letter-ink:#296f49;color:var(--letter-ink);}
+body.playful .block[data-color='3']{--paint:#e4b62c;--paint-dark:#a77819;--letter-ink:#ad7a1b;color:var(--letter-ink);}
+body.playful .block::before{inset:2px;border-radius:5px;background:repeating-linear-gradient(80deg,transparent 0 6px,#946c4322 7px,transparent 8px 12px);opacity:.55;}
+body.playful .block .face{
+ width:88%;height:88%;border-radius:4px;
+ border:clamp(2px,.7vw,5px) solid var(--paint);
+ background:linear-gradient(130deg,#fff6dd,#f6e4c4 75%,#ead0a3);
+ box-shadow:inset 0 0 0 1px #fff9e9,0 1px 0 var(--paint-dark),inset 0 -2px 2px #aa835a70;
+ color:var(--letter-ink);text-shadow:0 1px 0 #fff6e3;
+}
+body.playful .block .points{color:#61452c;right:5%;bottom:2%;background:#f6e5c7b9;border-radius:2px;padding:0 1px;}
+body.playful .rack .block{box-shadow:inset 1px 1px #ffeac9,2px 4px 0 #94603c,3px 6px 5px #43240c54;}
+body.playful .rack .block .face{width:84%;height:84%;border-width:4px;}
+body.playful .sq .block{border-radius:2px;box-shadow:inset 1px 1px #fff9df,1px 1px 0 #805d3d;}
+body.playful .sq .block .face{border-width:2px;border-radius:2px;}
+/* Standout logo in both modes, but no noise or decorative clutter over board. */
+@media(max-width:520px){
+ body{background:#f5ecde;}
+ .shell{background:#fff8eb;}
+ .top{padding-top:max(7px,env(safe-area-inset-top,0px));padding-bottom:8px;min-height:60px;}
+ .top h1{font-size:30px;}
+ .top .eyebrow{font-size:7px;}
+ .brand-block{border-radius:4px;}
+ .brand-block::before{border-width:2px;}
+ .icon-button{min-width:40px;min-height:39px;}
+ .game{border:none;}
+ .scorebar{min-height:63px;padding:6px 7px;}
+ .player{padding:6px 8px;}
+ .player strong{font-size:23px;}
+ .board-wrap{padding:4px;}
+ .sq .block{font-size:clamp(11px,3.2vw,15px);-webkit-text-stroke:.32px currentColor;}
+ .sq .block .face{width:96%;height:96%;border-width:1px;}
+ .sq .block .points{font-size:6px;}
+ .rack-area{padding:9px 9px 12px;}
+ .rack{padding:2px 0 6px;margin:7px auto;gap:6px;}
+ .rack .block{width:13%;font-size:clamp(22px,7.6vw,34px);}
+ .rack .block .face{width:86%;height:86%;}
+ .controls{gap:5px;}
+ .controls button{min-height:43px;font-size:11px;padding:7px 3px;}
+ body.playful .sq .block .face{border-width:2px;}
+ body.playful .rack .block .face{border-width:3px;}
+}
+
+
+/* Hand-painted alphabet-block logotype with six consistent toy faces. */
+.top .brand-wordmark{margin:0;line-height:1;display:block;text-shadow:none;}
+.brand-tiles{display:flex;gap:3px;align-items:center;}
+.brand-tiles>span{
+ --block-paint:#226e8e;--block-dark:#184a65;
+ position:relative;isolation:isolate;width:27px;height:30px;
+ display:grid;place-items:center;flex-shrink:0;
+ color:var(--block-paint);font-family:var(--j-display);font-weight:900;
+ font-size:24px;letter-spacing:-.085em;-webkit-text-stroke:.7px currentColor;
+ background:linear-gradient(130deg,#f5d5a2,#bd8c5a);
+ border-radius:3px;
+ border:2px solid var(--block-paint);
+ box-shadow:inset 0 0 0 2px #fff2d4,1px 2px 0 var(--block-dark),2px 3px 0 #08253666;
+ text-shadow:0 1px 0 #fff4dc;
+}
+.brand-tiles>span:nth-child(2),.brand-tiles>span:nth-child(6){--block-paint:#c74739;--block-dark:#8a3327;}
+.brand-tiles>span:nth-child(3){--block-paint:#37845b;--block-dark:#275638;}
+.brand-tiles>span:nth-child(5){--block-paint:#dfa923;--block-dark:#976e18;}
+.brand-tiles>span:nth-child(4){--block-paint:#226e8e;--block-dark:#184a65;}
+@media(max-width:520px){.brand-tiles>span{width:25px;height:29px;font-size:22px;}.brand-tiles{gap:3px}}
 </style></head>
 <body><div class="shell">
-<header class="top"><div><div class="eyebrow">YOUR WORDS. YOUR GAME.</div><h1>Jargon<span class="logo-dot">.</span></h1></div><div class="top-actions"><button id="theme" class="icon-button" type="button" aria-label="Switch visual style">◧ <span>Sophisticated</span></button><button id="rules" class="icon-button" type="button">ⓘ Rules</button></div></header>
+<header class="top"><div><div class="eyebrow">YOUR WORDS. YOUR GAME.</div><h1 class="brand-wordmark" aria-label="Jargon"><span class="brand-tiles" aria-hidden="true"><span>J</span><span>A</span><span>R</span><span>G</span><span>O</span><span>N</span></span></h1></div><div class="top-actions"><button id="theme" class="icon-button" type="button" aria-label="Switch visual style">◧ <span>Sophisticated</span></button><button id="rules" class="icon-button" type="button">ⓘ Rules</button></div></header>
 <main><div id="runtime-alert" class="runtime-alert" role="alert" aria-live="assertive"></div><noscript><div class="noscript-alert" role="alert"><strong>This preview cannot run Jargon.</strong> The board is visible, but moves require JavaScript. Open Jargon as a website in Safari or Chrome rather than in a document or attachment preview.</div></noscript><div class="intro"><span class="alpha-pill">LOCAL TWO-PLAYER DEMO</span><span class="tagline">Your words. Your game. No trackers.</span></div>
 <div class="game-layout"><section class="game" aria-label="Jargon game"><div class="scorebar"><div class="player active" id="player0"><span class="player-label">PLAYER ONE</span><strong id="score0">0</strong></div><div class="turn-center"><span id="turn-label">Player One’s turn</span><small id="bag-count">86 letters left</small></div><div class="player" id="player1"><span class="player-label">PLAYER TWO</span><strong id="score1">0</strong></div></div>
 <div class="board-wrap"><div class="board" id="board" role="grid" aria-label="15 by 15 word board"><span class="sq fallback premium-TW" role="gridcell" aria-label="Row 1, column 1"><span class="bonus">TW</span></span><span class="sq fallback" role="gridcell" aria-label="Row 1, column 2"></span><span class="sq fallback" role="gridcell" aria-label="Row 1, column 3"></span><span class="sq fallback" role="gridcell" aria-label="Row 1, column 4"></span><span class="sq fallback" role="gridcell" aria-label="Row 1, column 5"></span><span class="sq fallback" role="gridcell" aria-label="Row 1, column 6"></span><span class="sq fallback" role="gridcell" aria-label="Row 1, column 7"></span><span class="sq fallback premium-DW" role="gridcell" aria-label="Row 1, column 8"><span class="bonus">DW</span></span><span class="sq fallback" role="gridcell" aria-label="Row 1, column 9"></span><span class="sq fallback" role="gridcell" aria-label="Row 1, column 10"></span><span class="sq fallback" role="gridcell" aria-label="Row 1, column 11"></span><span class="sq fallback" role="gridcell" aria-label="Row 1, column 12"></span><span class="sq fallback" role="gridcell" aria-label="Row 1, column 13"></span><span class="sq fallback" role="gridcell" aria-label="Row 1, column 14"></span><span class="sq fallback premium-TW" role="gridcell" aria-label="Row 1, column 15"><span class="bonus">TW</span></span><span class="sq fallback" role="gridcell" aria-label="Row 2, column 1"></span><span class="sq fallback" role="gridcell" aria-label="Row 2, column 2"></span><span class="sq fallback" role="gridcell" aria-label="Row 2, column 3"></span><span class="sq fallback" role="gridcell" aria-label="Row 2, column 4"></span><span class="sq fallback" role="gridcell" aria-label="Row 2, column 5"></span><span class="sq fallback premium-TL" role="gridcell" aria-label="Row 2, column 6"><span class="bonus">TL</span></span><span class="sq fallback" role="gridcell" aria-label="Row 2, column 7"></span><span class="sq fallback" role="gridcell" aria-label="Row 2, column 8"></span><span class="sq fallback" role="gridcell" aria-label="Row 2, column 9"></span><span class="sq fallback premium-TL" role="gridcell" aria-label="Row 2, column 10"><span class="bonus">TL</span></span><span class="sq fallback" role="gridcell" aria-label="Row 2, column 11"></span><span class="sq fallback" role="gridcell" aria-label="Row 2, column 12"></span><span class="sq fallback" role="gridcell" aria-label="Row 2, column 13"></span><span class="sq fallback" role="gridcell" aria-label="Row 2, column 14"></span><span class="sq fallback" role="gridcell" aria-label="Row 2, column 15"></span><span class="sq fallback" role="gridcell" aria-label="Row 3, column 1"></span><span class="sq fallback" role="gridcell" aria-label="Row 3, column 2"></span><span class="sq fallback premium-DW" role="gridcell" aria-label="Row 3, column 3"><span class="bonus">DW</span></span><span class="sq fallback" role="gridcell" aria-label="Row 3, column 4"></span><span class="sq fallback" role="gridcell" aria-label="Row 3, column 5"></span><span class="sq fallback" role="gridcell" aria-label="Row 3, column 6"></span><span class="sq fallback" role="gridcell" aria-label="Row 3, column 7"></span><span class="sq fallback" role="gridcell" aria-label="Row 3, column 8"></span><span class="sq fallback" role="gridcell" aria-label="Row 3, column 9"></span><span class="sq fallback" role="gridcell" aria-label="Row 3, column 10"></span><span class="sq fallback" role="gridcell" aria-label="Row 3, column 11"></span><span class="sq fallback" role="gridcell" aria-label="Row 3, column 12"></span><span class="sq fallback premium-DW" role="gridcell" aria-label="Row 3, column 13"><span class="bonus">DW</span></span><span class="sq fallback" role="gridcell" aria-label="Row 3, column 14"></span><span class="sq fallback" role="gridcell" aria-label="Row 3, column 15"></span><span class="sq fallback" role="gridcell" aria-label="Row 4, column 1"></span><span class="sq fallback" role="gridcell" aria-label="Row 4, column 2"></span><span class="sq fallback" role="gridcell" aria-label="Row 4, column 3"></span><span class="sq fallback" role="gridcell" aria-label="Row 4, column 4"></span><span class="sq fallback" role="gridcell" aria-label="Row 4, column 5"></span><span class="sq fallback" role="gridcell" aria-label="Row 4, column 6"></span><span class="sq fallback premium-DL" role="gridcell" aria-label="Row 4, column 7"><span class="bonus">DL</span></span><span class="sq fallback" role="gridcell" aria-label="Row 4, column 8"></span><span class="sq fallback premium-DL" role="gridcell" aria-label="Row 4, column 9"><span class="bonus">DL</span></span><span class="sq fallback" role="gridcell" aria-label="Row 4, column 10"></span><span class="sq fallback" role="gridcell" aria-label="Row 4, column 11"></span><span class="sq fallback" role="gridcell" aria-label="Row 4, column 12"></span><span class="sq fallback" role="gridcell" aria-label="Row 4, column 13"></span><span class="sq fallback" role="gridcell" aria-label="Row 4, column 14"></span><span class="sq fallback" role="gridcell" aria-label="Row 4, column 15"></span><span class="sq fallback" role="gridcell" aria-label="Row 5, column 1"></span><span class="sq fallback" role="gridcell" aria-label="Row 5, column 2"></span><span class="sq fallback" role="gridcell" aria-label="Row 5, column 3"></span><span class="sq fallback" role="gridcell" aria-label="Row 5, column 4"></span><span class="sq fallback premium-TL" role="gridcell" aria-label="Row 5, column 5"><span class="bonus">TL</span></span><span class="sq fallback" role="gridcell" aria-label="Row 5, column 6"></span><span class="sq fallback" role="gridcell" aria-label="Row 5, column 7"></span><span class="sq fallback" role="gridcell" aria-label="Row 5, column 8"></span><span class="sq fallback" role="gridcell" aria-label="Row 5, column 9"></span><span class="sq fallback" role="gridcell" aria-label="Row 5, column 10"></span><span class="sq fallback premium-TL" role="gridcell" aria-label="Row 5, column 11"><span class="bonus">TL</span></span><span class="sq fallback" role="gridcell" aria-label="Row 5, column 12"></span><span class="sq fallback" role="gridcell" aria-label="Row 5, column 13"></span><span class="sq fallback" role="gridcell" aria-label="Row 5, column 14"></span><span class="sq fallback" role="gridcell" aria-label="Row 5, column 15"></span><span class="sq fallback" role="gridcell" aria-label="Row 6, column 1"></span><span class="sq fallback premium-TL" role="gridcell" aria-label="Row 6, column 2"><span class="bonus">TL</span></span><span class="sq fallback" role="gridcell" aria-label="Row 6, column 3"></span><span class="sq fallback" role="gridcell" aria-label="Row 6, column 4"></span><span class="sq fallback" role="gridcell" aria-label="Row 6, column 5"></span><span class="sq fallback premium-DW" role="gridcell" aria-label="Row 6, column 6"><span class="bonus">DW</span></span><span class="sq fallback" role="gridcell" aria-label="Row 6, column 7"></span><span class="sq fallback" role="gridcell" aria-label="Row 6, column 8"></span><span class="sq fallback" role="gridcell" aria-label="Row 6, column 9"></span><span class="sq fallback premium-DW" role="gridcell" aria-label="Row 6, column 10"><span class="bonus">DW</span></span><span class="sq fallback" role="gridcell" aria-label="Row 6, column 11"></span><span class="sq fallback" role="gridcell" aria-label="Row 6, column 12"></span><span class="sq fallback" role="gridcell" aria-label="Row 6, column 13"></span><span class="sq fallback premium-TL" role="gridcell" aria-label="Row 6, column 14"><span class="bonus">TL</span></span><span class="sq fallback" role="gridcell" aria-label="Row 6, column 15"></span><span class="sq fallback" role="gridcell" aria-label="Row 7, column 1"></span><span class="sq fallback" role="gridcell" aria-label="Row 7, column 2"></span><span class="sq fallback" role="gridcell" aria-label="Row 7, column 3"></span><span class="sq fallback premium-DL" role="gridcell" aria-label="Row 7, column 4"><span class="bonus">DL</span></span><span class="sq fallback" role="gridcell" aria-label="Row 7, column 5"></span><span class="sq fallback" role="gridcell" aria-label="Row 7, column 6"></span><span class="sq fallback" role="gridcell" aria-label="Row 7, column 7"></span><span class="sq fallback" role="gridcell" aria-label="Row 7, column 8"></span><span class="sq fallback" role="gridcell" aria-label="Row 7, column 9"></span><span class="sq fallback" role="gridcell" aria-label="Row 7, column 10"></span><span class="sq fallback" role="gridcell" aria-label="Row 7, column 11"></span><span class="sq fallback premium-DL" role="gridcell" aria-label="Row 7, column 12"><span class="bonus">DL</span></span><span class="sq fallback" role="gridcell" aria-label="Row 7, column 13"></span><span class="sq fallback" role="gridcell" aria-label="Row 7, column 14"></span><span class="sq fallback" role="gridcell" aria-label="Row 7, column 15"></span><span class="sq fallback premium-DW" role="gridcell" aria-label="Row 8, column 1"><span class="bonus">DW</span></span><span class="sq fallback" role="gridcell" aria-label="Row 8, column 2"></span><span class="sq fallback" role="gridcell" aria-label="Row 8, column 3"></span><span class="sq fallback" role="gridcell" aria-label="Row 8, column 4"></span><span class="sq fallback" role="gridcell" aria-label="Row 8, column 5"></span><span class="sq fallback" role="gridcell" aria-label="Row 8, column 6"></span><span class="sq fallback" role="gridcell" aria-label="Row 8, column 7"></span><span class="sq fallback premium-DW center" role="gridcell" aria-label="Row 8, column 8"><span class="bonus">★</span></span><span class="sq fallback" role="gridcell" aria-label="Row 8, column 9"></span><span class="sq fallback" role="gridcell" aria-label="Row 8, column 10"></span><span class="sq fallback" role="gridcell" aria-label="Row 8, column 11"></span><span class="sq fallback" role="gridcell" aria-label="Row 8, column 12"></span><span class="sq fallback" role="gridcell" aria-label="Row 8, column 13"></span><span class="sq fallback" role="gridcell" aria-label="Row 8, column 14"></span><span class="sq fallback premium-DW" role="gridcell" aria-label="Row 8, column 15"><span class="bonus">DW</span></span><span class="sq fallback" role="gridcell" aria-label="Row 9, column 1"></span><span class="sq fallback" role="gridcell" aria-label="Row 9, column 2"></span><span class="sq fallback" role="gridcell" aria-label="Row 9, column 3"></span><span class="sq fallback premium-DL" role="gridcell" aria-label="Row 9, column 4"><span class="bonus">DL</span></span><span class="sq fallback" role="gridcell" aria-label="Row 9, column 5"></span><span class="sq fallback" role="gridcell" aria-label="Row 9, column 6"></span><span class="sq fallback" role="gridcell" aria-label="Row 9, column 7"></span><span class="sq fallback" role="gridcell" aria-label="Row 9, column 8"></span><span class="sq fallback" role="gridcell" aria-label="Row 9, column 9"></span><span class="sq fallback" role="gridcell" aria-label="Row 9, column 10"></span><span class="sq fallback" role="gridcell" aria-label="Row 9, column 11"></span><span class="sq fallback premium-DL" role="gridcell" aria-label="Row 9, column 12"><span class="bonus">DL</span></span><span class="sq fallback" role="gridcell" aria-label="Row 9, column 13"></span><span class="sq fallback" role="gridcell" aria-label="Row 9, column 14"></span><span class="sq fallback" role="gridcell" aria-label="Row 9, column 15"></span><span class="sq fallback" role="gridcell" aria-label="Row 10, column 1"></span><span class="sq fallback premium-TL" role="gridcell" aria-label="Row 10, column 2"><span class="bonus">TL</span></span><span class="sq fallback" role="gridcell" aria-label="Row 10, column 3"></span><span class="sq fallback" role="gridcell" aria-label="Row 10, column 4"></span><span class="sq fallback" role="gridcell" aria-label="Row 10, column 5"></span><span class="sq fallback premium-DW" role="gridcell" aria-label="Row 10, column 6"><span class="bonus">DW</span></span><span class="sq fallback" role="gridcell" aria-label="Row 10, column 7"></span><span class="sq fallback" role="gridcell" aria-label="Row 10, column 8"></span><span class="sq fallback" role="gridcell" aria-label="Row 10, column 9"></span><span class="sq fallback premium-DW" role="gridcell" aria-label="Row 10, column 10"><span class="bonus">DW</span></span><span class="sq fallback" role="gridcell" aria-label="Row 10, column 11"></span><span class="sq fallback" role="gridcell" aria-label="Row 10, column 12"></span><span class="sq fallback" role="gridcell" aria-label="Row 10, column 13"></span><span class="sq fallback premium-TL" role="gridcell" aria-label="Row 10, column 14"><span class="bonus">TL</span></span><span class="sq fallback" role="gridcell" aria-label="Row 10, column 15"></span><span class="sq fallback" role="gridcell" aria-label="Row 11, column 1"></span><span class="sq fallback" role="gridcell" aria-label="Row 11, column 2"></span><span class="sq fallback" role="gridcell" aria-label="Row 11, column 3"></span><span class="sq fallback" role="gridcell" aria-label="Row 11, column 4"></span><span class="sq fallback premium-TL" role="gridcell" aria-label="Row 11, column 5"><span class="bonus">TL</span></span><span class="sq fallback" role="gridcell" aria-label="Row 11, column 6"></span><span class="sq fallback" role="gridcell" aria-label="Row 11, column 7"></span><span class="sq fallback" role="gridcell" aria-label="Row 11, column 8"></span><span class="sq fallback" role="gridcell" aria-label="Row 11, column 9"></span><span class="sq fallback" role="gridcell" aria-label="Row 11, column 10"></span><span class="sq fallback premium-TL" role="gridcell" aria-label="Row 11, column 11"><span class="bonus">TL</span></span><span class="sq fallback" role="gridcell" aria-label="Row 11, column 12"></span><span class="sq fallback" role="gridcell" aria-label="Row 11, column 13"></span><span class="sq fallback" role="gridcell" aria-label="Row 11, column 14"></span><span class="sq fallback" role="gridcell" aria-label="Row 11, column 15"></span><span class="sq fallback" role="gridcell" aria-label="Row 12, column 1"></span><span class="sq fallback" role="gridcell" aria-label="Row 12, column 2"></span><span class="sq fallback" role="gridcell" aria-label="Row 12, column 3"></span><span class="sq fallback" role="gridcell" aria-label="Row 12, column 4"></span><span class="sq fallback" role="gridcell" aria-label="Row 12, column 5"></span><span class="sq fallback" role="gridcell" aria-label="Row 12, column 6"></span><span class="sq fallback premium-DL" role="gridcell" aria-label="Row 12, column 7"><span class="bonus">DL</span></span><span class="sq fallback" role="gridcell" aria-label="Row 12, column 8"></span><span class="sq fallback premium-DL" role="gridcell" aria-label="Row 12, column 9"><span class="bonus">DL</span></span><span class="sq fallback" role="gridcell" aria-label="Row 12, column 10"></span><span class="sq fallback" role="gridcell" aria-label="Row 12, column 11"></span><span class="sq fallback" role="gridcell" aria-label="Row 12, column 12"></span><span class="sq fallback" role="gridcell" aria-label="Row 12, column 13"></span><span class="sq fallback" role="gridcell" aria-label="Row 12, column 14"></span><span class="sq fallback" role="gridcell" aria-label="Row 12, column 15"></span><span class="sq fallback" role="gridcell" aria-label="Row 13, column 1"></span><span class="sq fallback" role="gridcell" aria-label="Row 13, column 2"></span><span class="sq fallback premium-DW" role="gridcell" aria-label="Row 13, column 3"><span class="bonus">DW</span></span><span class="sq fallback" role="gridcell" aria-label="Row 13, column 4"></span><span class="sq fallback" role="gridcell" aria-label="Row 13, column 5"></span><span class="sq fallback" role="gridcell" aria-label="Row 13, column 6"></span><span class="sq fallback" role="gridcell" aria-label="Row 13, column 7"></span><span class="sq fallback" role="gridcell" aria-label="Row 13, column 8"></span><span class="sq fallback" role="gridcell" aria-label="Row 13, column 9"></span><span class="sq fallback" role="gridcell" aria-label="Row 13, column 10"></span><span class="sq fallback" role="gridcell" aria-label="Row 13, column 11"></span><span class="sq fallback" role="gridcell" aria-label="Row 13, column 12"></span><span class="sq fallback premium-DW" role="gridcell" aria-label="Row 13, column 13"><span class="bonus">DW</span></span><span class="sq fallback" role="gridcell" aria-label="Row 13, column 14"></span><span class="sq fallback" role="gridcell" aria-label="Row 13, column 15"></span><span class="sq fallback" role="gridcell" aria-label="Row 14, column 1"></span><span class="sq fallback" role="gridcell" aria-label="Row 14, column 2"></span><span class="sq fallback" role="gridcell" aria-label="Row 14, column 3"></span><span class="sq fallback" role="gridcell" aria-label="Row 14, column 4"></span><span class="sq fallback" role="gridcell" aria-label="Row 14, column 5"></span><span class="sq fallback premium-TL" role="gridcell" aria-label="Row 14, column 6"><span class="bonus">TL</span></span><span class="sq fallback" role="gridcell" aria-label="Row 14, column 7"></span><span class="sq fallback" role="gridcell" aria-label="Row 14, column 8"></span><span class="sq fallback" role="gridcell" aria-label="Row 14, column 9"></span><span class="sq fallback premium-TL" role="gridcell" aria-label="Row 14, column 10"><span class="bonus">TL</span></span><span class="sq fallback" role="gridcell" aria-label="Row 14, column 11"></span><span class="sq fallback" role="gridcell" aria-label="Row 14, column 12"></span><span class="sq fallback" role="gridcell" aria-label="Row 14, column 13"></span><span class="sq fallback" role="gridcell" aria-label="Row 14, column 14"></span><span class="sq fallback" role="gridcell" aria-label="Row 14, column 15"></span><span class="sq fallback premium-TW" role="gridcell" aria-label="Row 15, column 1"><span class="bonus">TW</span></span><span class="sq fallback" role="gridcell" aria-label="Row 15, column 2"></span><span class="sq fallback" role="gridcell" aria-label="Row 15, column 3"></span><span class="sq fallback" role="gridcell" aria-label="Row 15, column 4"></span><span class="sq fallback" role="gridcell" aria-label="Row 15, column 5"></span><span class="sq fallback" role="gridcell" aria-label="Row 15, column 6"></span><span class="sq fallback" role="gridcell" aria-label="Row 15, column 7"></span><span class="sq fallback premium-DW" role="gridcell" aria-label="Row 15, column 8"><span class="bonus">DW</span></span><span class="sq fallback" role="gridcell" aria-label="Row 15, column 9"></span><span class="sq fallback" role="gridcell" aria-label="Row 15, column 10"></span><span class="sq fallback" role="gridcell" aria-label="Row 15, column 11"></span><span class="sq fallback" role="gridcell" aria-label="Row 15, column 12"></span><span class="sq fallback" role="gridcell" aria-label="Row 15, column 13"></span><span class="sq fallback" role="gridcell" aria-label="Row 15, column 14"></span><span class="sq fallback premium-TW" role="gridcell" aria-label="Row 15, column 15"><span class="bonus">TW</span></span></div></div>
