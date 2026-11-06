@@ -445,6 +445,13 @@ body.bot-turn #board .sq{pointer-events:none;}
 body.bot-turn #shuffle,body.bot-turn #flip{pointer-events:none;opacity:.5;}
 .mode-strip{gap:8px;flex-wrap:wrap;}
 @media(max-width:520px){.mode-strip{display:flex;justify-content:space-between;gap:5px;}.mode-strip .mode-picker{min-width:0;font-size:8px;gap:3px;}.mode-strip select{max-width:min(35vw,170px);font-size:10px;}}
+
+/* Keep the two rules/opponent selectors on one row even at 320px; accessible names stay on selects. */
+@media(max-width:520px){
+  .mode-strip{flex-wrap:nowrap;min-height:36px;}
+  .mode-strip .mode-picker{flex:1 1 0;min-width:0;font-size:0;gap:0;}
+  .mode-strip .mode-picker select{width:100%;max-width:100%;min-width:0;font-size:11px;}
+}
 </style></head>
 <body><div class="shell">
 <header class="top"><div><div class="eyebrow">YOUR WORDS. YOUR GAME.</div><h1 class="brand-wordmark" aria-label="Jargon"><span class="brand-tiles" aria-hidden="true"><span>J</span><span>A</span><span>R</span><span>G</span><span>O</span><span>N</span></span></h1></div><div class="top-actions"><button id="theme" class="icon-button" type="button" aria-label="Switch visual style">◧ <span>Sophisticated</span></button><button id="rules" class="icon-button" type="button">ⓘ Rules</button></div></header>
