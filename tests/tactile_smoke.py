@@ -53,10 +53,9 @@ with sync_playwright() as p:
     assert page.locator("#haptics-row").is_hidden()
     page.select_option("#game-mode","blocks")
     page.evaluate("""() => {const source=fullBag('blocks');const alternate=source.find(t=>t.alternate);state.racks[0]=[alternate,...source.filter(t=>t.letter==='E').slice(0,6)];render();}""")
-    page.locator("#rack .block").first.click()
-    page.locator("#flip").click()
-    assert page.locator(".rack .is-flipping").count()==1
-    assert page.locator(".rack .flipped").count()==1
+    result=page.evaluate("""() => {document.querySelector("#rack .block").click();const before={selected,mode:state.mode};document.querySelector("#flip").click();return {...before,flipTile,flipped:document.querySelectorAll(".rack .flipped").length,animating:document.querySelectorAll(".rack .is-flipping").length,disabled:document.querySelector("#flip").disabled};}""")
+    assert result["flipped"]==1,result
+    assert result["animating"]==1,result
     print("PASS block flip and opt-in haptics UI")
     ctx.close()
     ctx=browser.new_context(java_script_enabled=False)
