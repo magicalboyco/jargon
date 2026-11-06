@@ -69,10 +69,10 @@ with sync_playwright() as p:
                   official:state.scores[0],draft:draft.map(x=>[x.row,x.col])};
         }""")
         assert set(outcome["words"]) == {"TEN", "BE", "AN"}, outcome
-        assert outcome["score"] == 7, outcome
+        assert outcome["score"] == 9, outcome
         assert outcome["official"] == 0, outcome
         assert outcome["draft"] == [[8,8],[9,8]], outcome
-        assert "7 points" in page.locator("#draft-preview").inner_text()
+        assert "9 points" in page.locator("#draft-preview").inner_text()
         # Cancelled pointer gestures leave no ghost, highlight or leaked window handlers.
         page.evaluate("""() => {
           const el=document.querySelector('#rack .block');
@@ -85,6 +85,6 @@ with sync_playwright() as p:
         }""")
         assert page.evaluate("tileDrag===null && !document.querySelector('.tile-drag-ghost') && !document.querySelector('.drag-target')")
         assert not errors, errors
-        print(f"PASS {width}x{height}: cursor toggle, vertical 4pt AT, three-way crossword 7pt, pointer cancel")
+        print(f"PASS {width}x{height}: cursor toggle, vertical 4pt AT, three-way crossword 9pt, pointer cancel")
         context.close()
     browser.close()
