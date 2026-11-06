@@ -32,6 +32,25 @@ function validDraft(value,game){
  return value;
 }
 let theme=safeStorage.get(THEME)||'sophisticated',draft=validDraft(saved?.draft,state),selected=null,swapping=false;
+// Event-scoped visual cues; do not replay animations on unrelated rerenders.
+let motionDropId=null,motionFlipId=null,motionShuffle=false,handoffPending=false;
+const HAPTICS_PREF='jargon-haptics-opt-in-v1';
+const supportsHaptics=typeof navigator.vibrate==='function';
+let hapticsEnabled=supportsHaptics && safeStorage.get(HAPTICS_PREF)==='on';
+function reducedMotion(){return !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;}
+function buzz(kind){
+ if(!supportsHaptics||!hapticsEnabled||reducedMotion())return;
+ const patterns={tap:8,drop:[11,28,7],flip:12,shuffle:9,success:[15,38,24],error:[28,35,28]};
+ try{navigator.vibrate(patterns[kind]||8);}catch{} // Browser support and permission are optional.
+}
+function refreshHapticsButton(){
+ const control=$('haptics');
+ control.hidden=!supportsHaptics;
+ control.setAttribute('aria-pressed',String(hapticsEnabled));
+ control.textContent=hapticsEnabled?'Feel: on':'Feel: off';
+ control.title=supportsHaptics?'Toggle optional vibration feedback':'Vibration is not supported here';
+}
+
 function persist(){safeStorage.set(STORE,JSON.stringify({version:2,game:state,draft}));}
 function say(message){$('hint').textContent=message;}
 function block(tile,css='',label=tileFace(tile)){
@@ -67,6 +86,9 @@ $('board').addEventListener('keydown',event=>{
  event.preventDefault();focusBoardCell(next);
 });
 function render(){
+ const currentDrop=motionDropId,currentFlip=motionFlipId,currentWave=motionShuffle;
+ motionDropId=null;motionFlipId=null;motionShuffle=false;
+ refreshHapticsButton();
  document.body.classList.toggle('playful',theme==='playful');
  document.body.classList.toggle('blocks-mode',state.mode==='blocks');
  $('game-mode').value=state.mode;
@@ -75,17 +97,18 @@ function render(){
  flipBtn.setAttribute('aria-label',canFlip?'Flip selected letter to its alternate face':'Select a nonblank rack tile to flip');
  $('flip-explain').textContent=state.mode==='blocks'?'Block Flip: select a tile, then tap ↻ Flip to switch its letter. Flipped points halve (minimum 1). Recall any staged tile to flip it.':'Classic rules · no flipping';
 $('theme').lastElementChild.textContent=theme==='playful'?'Playful':'Sophisticated';$('score0').textContent=state.scores[0];$('score1').textContent=state.scores[1];$('player0').classList.toggle('active',state.turn===0);$('player1').classList.toggle('active',state.turn===1);$('turn-label').textContent=state.finished?`Game over · ${state.winner==='tie'?'Tie':`Player ${state.winner+1} wins`}`:`Player ${state.turn+1}'s turn`;$('bag-count').textContent=`${state.bag.length} letters left`;
- const board=$('board');const hadBoardFocus=board.contains(document.activeElement);board.replaceChildren();for(let r=0;r<SIZE;r++)for(let c=0;c<SIZE;c++){const el=document.createElement('button');el.type='button';el.className='sq';el.tabIndex=(r*SIZE+c===activeCell)?0:-1;el.setAttribute('role','gridcell');el.setAttribute('aria-label',`Row ${r+1}, column ${c+1}`);const fixed=state.board[r][c],pending=tileAt(r,c),bonus=PREMIUM[r][c];if(bonus)el.classList.add('premium-'+bonus);if(r===7&&c===7)el.classList.add('center');if(fixed){el.append(block({...fixed.tile,flipped:!!fixed.flipped},'',fixed.as));el.setAttribute('aria-label',`Row ${r+1}, column ${c+1}, ${fixed.as}, ${fixed.points ?? fixed.tile.points} points${fixed.flipped?', alternate face':''}`);}else if(pending){const tile=state.racks[state.turn].find(t=>t.id===pending.tileId);if(tile)el.append(block(tile,'placed',pending.as||tileFace(tile)));el.setAttribute('aria-label',`Pending ${tile?tileFace(tile):''} at row ${r+1}, column ${c+1}; tap to recall`);}else if(bonus){const b=document.createElement('span');b.className='bonus';b.textContent=r===7&&c===7?'★':bonus;el.append(b);}el.addEventListener('click',()=>tapSquare(r,c));board.append(el);}
+ const board=$('board');const hadBoardFocus=board.contains(document.activeElement);board.replaceChildren();for(let r=0;r<SIZE;r++)for(let c=0;c<SIZE;c++){const el=document.createElement('button');el.type='button';el.className='sq';el.tabIndex=(r*SIZE+c===activeCell)?0:-1;el.setAttribute('role','gridcell');el.setAttribute('aria-label',`Row ${r+1}, column ${c+1}`);const fixed=state.board[r][c],pending=tileAt(r,c),bonus=PREMIUM[r][c];if(bonus)el.classList.add('premium-'+bonus);if(r===7&&c===7)el.classList.add('center');if(fixed){el.classList.add('occupied');el.append(block({...fixed.tile,flipped:!!fixed.flipped},'',fixed.as));el.setAttribute('aria-label',`Row ${r+1}, column ${c+1}, ${fixed.as}, ${fixed.points ?? fixed.tile.points} points${fixed.flipped?', alternate face':''}`);}else if(pending){el.classList.add('occupied');const tile=state.racks[state.turn].find(t=>t.id===pending.tileId);if(tile)el.append(block(tile,'placed'+(tile.id===currentDrop?' kinetic-drop':''),pending.as||tileFace(tile)));el.setAttribute('aria-label',`Pending ${tile?tileFace(tile):''} at row ${r+1}, column ${c+1}; tap to recall`);}else if(bonus){const b=document.createElement('span');b.className='bonus';b.textContent=r===7&&c===7?'★':bonus;el.append(b);}el.addEventListener('click',()=>tapSquare(r,c));board.append(el);}
  if(hadBoardFocus)board.children[activeCell]?.focus({preventScroll:true});
- const rack=$('rack');rack.replaceChildren();for(const tile of state.racks[state.turn]){if(draft.some(p=>p.tileId===tile.id))continue;const b=block(tile,selected===tile.id?'selected':'');b.setAttribute('role','button');b.setAttribute('tabindex','0');b.setAttribute('aria-label',`${tile.blank?'Blank':tileFace(tile)}, ${tileValue(tile)} points${tile.flipped?', flipped alternate face':''}${selected===tile.id?', selected':''}`);const choose=()=>{if(swapping){if(!swapIds.has(tile.id))swapIds.add(tile.id);else swapIds.delete(tile.id);say(`${swapIds.size} tile(s) selected to swap. Tap Swap again to confirm.`);}else{selected=selected===tile.id?null:tile.id;say(selected?'Tap a board square to place your letter.':'Select a letter to place.');}render();};b.addEventListener('click',choose);b.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();choose();}});if(swapIds.has(tile.id))b.classList.add('selected');rack.append(b);}
+ const rack=$('rack');rack.replaceChildren();let rackIndex=0;if(!handoffPending)for(const tile of state.racks[state.turn]){if(draft.some(p=>p.tileId===tile.id))continue;const b=block(tile,(selected===tile.id?'selected':'')+(tile.id===currentFlip?' kinetic-flip':'')+(currentWave?' kinetic-shuffle':''));b.style.setProperty('--wave-index',String(rackIndex++));b.setAttribute('role','button');b.setAttribute('tabindex','0');b.setAttribute('aria-label',`${tile.blank?'Blank':tileFace(tile)}, ${tileValue(tile)} points${tile.flipped?', flipped alternate face':''}${selected===tile.id?', selected':''}`);const choose=()=>{buzz('tap');if(swapping){if(!swapIds.has(tile.id))swapIds.add(tile.id);else swapIds.delete(tile.id);say(`${swapIds.size} tile(s) selected to swap. Tap Swap again to confirm.`);}else{selected=selected===tile.id?null:tile.id;say(selected?'Tap a board square to place your letter.':'Select a letter to place.');}render();};b.addEventListener('click',choose);b.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();choose();}});if(swapIds.has(tile.id))b.classList.add('selected');rack.append(b);}
  $('history').replaceChildren();const items=state.history.slice(-8).reverse();if(!items.length){const li=document.createElement('li');li.textContent='No moves yet. The board is yours!';$('history').append(li);}for(const m of items){const li=document.createElement('li');li.textContent=`P${m.player+1} ${m.kind==='play'?`${m.words.join(' + ')} · +${m.score}`:m.kind}`;$('history').append(li);}
- $('play').disabled=state.finished;$('pass').disabled=state.finished;$('swap').disabled=state.finished;}
+ $('play').disabled=state.finished||handoffPending;$('pass').disabled=state.finished||handoffPending;$('swap').disabled=state.finished||handoffPending;$('recall').disabled=handoffPending;$('shuffle').disabled=handoffPending;}
 let swapIds=new Set();
 function placeSelected(row,col,as){
  const tile=state.racks[state.turn].find(t=>t.id===selected);
  if(!tile)return;
+ motionDropId=selected;
  draft.push({row,col,tileId:selected,flipped:!!tile.flipped,...(as?{as}:{})});
- selected=null;persist();render();say(`${draft.length} letter(s) placed. Select another or press Play word.`);
+ selected=null;persist();render();buzz('drop');say(`${draft.length} letter(s) placed. Select another or press Play word.`);
 }
 let pendingBlank=null;
 function clearPendingBlank(){pendingBlank=null;selected=null;render();}
@@ -117,7 +140,45 @@ function tapSquare(row,col){
  if(tile.blank){pendingBlank={row,col};$('blank-letter').value='A';$('blank-picker').showModal();$('blank-letter').focus();return;}
  placeSelected(row,col);
 }
-function commit(move){try{const result=play(state,move,w=>validWord(w,state.dictionaryVersion||'starter-demo-1'));state=result.state;draft=[];selected=null;swapping=false;swapIds.clear();persist();render();if(move.kind==='play')say(`Played ${result.words.map(x=>x.word).join(' + ')} for ${result.score} points!`);else say(`${move.kind} completed.`);if(!state.finished)showDialog('Next player','Pass the device to Player '+(state.turn+1)+'. Their letters will appear when they tap Ready.');else showDialog('Game over',state.winner==='tie'?'It’s a tie!':`Player ${state.winner+1} wins. Final scores: ${state.scores.join(' – ')}.`);}catch(e){say(e.message);}}
+function showScoreBurst(score,placements,player){
+ if(!Array.isArray(placements)||!placements.length)return;
+ const tray=document.querySelector('.board-wrap'),cells=$('board').children;
+ const midpoint=placements[Math.floor(placements.length/2)];
+ const cell=cells[midpoint.row*SIZE+midpoint.col];
+ if(!tray||!cell)return;
+ tray.querySelectorAll('.score-pop').forEach(item=>item.remove());
+ const burst=document.createElement('span');
+ burst.className='score-pop';burst.setAttribute('aria-hidden','true');
+ burst.textContent='+'+score;
+ const a=cell.getBoundingClientRect(),b=tray.getBoundingClientRect();
+ burst.style.left=(a.left-b.left+a.width/2)+'px';
+ burst.style.top=(a.top-b.top+a.height/2)+'px';
+ tray.append(burst);
+ const badge=$('player'+player);badge?.classList.add('score-glow');
+ window.setTimeout(()=>{burst.remove();badge?.classList.remove('score-glow');},820);
+}
+function commit(move){
+ if(handoffPending)return;
+ try{
+  const formerPlayer=state.turn;
+  const result=play(state,move,w=>validWord(w,state.dictionaryVersion||'starter-demo-1'));
+  state=result.state;draft=[];selected=null;swapping=false;swapIds.clear();
+  handoffPending=move.kind==='play';
+  persist();render();
+  if(move.kind==='play'){
+   say(`Played ${result.words.map(x=>x.word).join(' + ')} for ${result.score} points!`);
+   buzz('success');
+   showScoreBurst(result.score,move.placements,formerPlayer);
+  }else{say(`${move.kind} completed.`);buzz('tap');}
+  const handoff=()=>{
+   handoffPending=false;render();
+   if(!state.finished)showDialog('Next player','Pass the device to Player '+(state.turn+1)+'. Their letters will appear when they tap Ready.');
+   else showDialog('Game over',state.winner==='tie'?'It’s a tie!':`Player ${state.winner+1} wins. Final scores: ${state.scores.join(' – ')}.`);
+  };
+  if(move.kind==='play'&&!reducedMotion())window.setTimeout(handoff,690);
+  else handoff();
+ }catch(e){say(e.message);buzz('error');}
+}
 function showDialog(title,message){$('dialog-title').textContent=title;$('dialog-message').textContent=message;$('dialog').showModal();}
 $('play').addEventListener('click',()=>{if(!draft.length){say('Place at least one letter first.');return;}commit({kind:'play',placements:draft});});
 $('recall').addEventListener('click',()=>{draft=[];selected=null;persist();render();say('All letters returned to rack.');});
@@ -128,7 +189,8 @@ $('flip').addEventListener('click',()=>{
  const tile=state.racks[state.turn].find(t=>t.id===selected);
  if(!tile||tile.blank||!tile.alternate){say('This block cannot flip.');return;}
  tile.flipped=!tile.flipped;
- persist();render();
+ motionFlipId=tile.id;
+ persist();render();buzz('flip');
  say(`${tile.letter} ${tile.flipped?'flipped to '+tile.alternate:'returned to '+tile.letter} · ${tileValue(tile)} point${tileValue(tile)===1?'':'s'}.`);
 });
 $('game-mode').addEventListener('change',e=>{
@@ -139,8 +201,17 @@ $('game-mode').addEventListener('change',e=>{
  draft=[];selected=null;swapping=false;swapIds.clear();persist();render();
  say(mode==='blocks'?'Block Flip started: select a block, then tap ↻ Flip to use its alternate letter.':'Classic game started: no flipped letters.');
 });
-$('shuffle').addEventListener('click',()=>{state.racks[state.turn].sort(()=>Math.random()-.5);persist();render();});
+$('shuffle').addEventListener('click',()=>{
+ const rack=state.racks[state.turn];
+ for(let i=rack.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[rack[i],rack[j]]=[rack[j],rack[i]];}
+ motionShuffle=true;persist();render();buzz('shuffle');
+});
 $('theme').addEventListener('click',()=>{theme=theme==='playful'?'sophisticated':'playful';safeStorage.set(THEME,theme);render();});
+$('haptics').addEventListener('click',()=>{
+ if(!supportsHaptics)return;
+ hapticsEnabled=!hapticsEnabled;safeStorage.set(HAPTICS_PREF,hapticsEnabled?'on':'off');
+ refreshHapticsButton();buzz('tap');
+});
 $('rules').addEventListener('click',()=>showDialog('How to play',`Classic uses familiar 7-tile word-game rules. Block Flip uses 104 dual-face blocks: select a rack tile and tap Flip to change its letter. Its score becomes max(1, floor(original points/2)); blanks stay at zero. Flips are free before submission and locked when played. You may recall a staged tile to flip it. Every word must connect. DL/TL multiply letters; DW/TW multiply words. Use all 7 tiles for +40 points. Offline ENABLE2K dictionary: ${dictionarySize.toLocaleString()} words (2–15 letters).`));
 $('reset').addEventListener('click',()=>{if(!confirm('Delete the current local game permanently and start fresh?'))return;safeStorage.remove(STORE);state=createGame(Math.random,DICTIONARY_VERSION,state.mode);draft=[];selected=null;swapping=false;swapIds.clear();persist();render();say('Local game deleted. New game ready.');});
 $('import').addEventListener('click',()=>$('import-file').click());
