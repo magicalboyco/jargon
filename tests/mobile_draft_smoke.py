@@ -1,0 +1,76 @@
+"""PR15 mobile interactions: full-engine scoring preview, conservative double-tap, gesture guards.
+Requires Playwright Chromium; reports browser emulation, NOT physical iOS Safari.
+"""
+from pathlib import Path
+import os
+from playwright.sync_api import sync_playwright
+
+HTML=(Path(__file__).resolve().parents[1]/"index.html").read_text(encoding="utf-8")
+with sync_playwright() as p:
+    config={"headless":True,"args":["--no-sandbox"]}
+    if os.getenv("CHROME_PATH"):config["executable_path"]=os.environ["CHROME_PATH"]
+    browser=p.chromium.launch(**config)
+    for width,height in ((320,720),(375,812),(390,844),(768,1024)):
+        context=browser.new_context(viewport={"width":width,"height":height},is_mobile=True,has_touch=True)
+        page=context.new_page()
+        errors=[]
+        page.on("pageerror",lambda e:errors.append(str(e)))
+        page.set_content(HTML)
+        assert page.locator("#board .sq").count()==225
+        assert page.locator("#rack .block").count()==7
+        assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
+        assert page.locator("#draft-preview").is_visible()
+        action=page.locator("#board").evaluate("node => getComputedStyle(node).touchAction")
+        assert "pinch-zoom" in action,action
+        # Fixed A/T rack ensures deterministic double-tap behavior despite random bags.
+        page.evaluate("""() => {
+          state=createGame(()=>0.5,'starter-demo-1','classic');
+          const bag=fullBag('classic');
+          state.racks[0]=[bag.find(t=>t.letter==='A'),bag.find(t=>t.letter==='T'),...bag.filter(t=>t.letter==='E').slice(0,5)];
+          draft=[];selected=null;render();
+        }""")
+        # Two taps in the same turn on the same tile auto-place only in a safe opening square.
+        page.locator("#rack .block").first.click()
+        page.locator("#rack .block").first.click()
+        assert page.evaluate("draft.length===1 && draft[0].row===7 && draft[0].col===7")
+        assert page.locator("#draft-preview").get_attribute("data-status")=="incomplete"
+        # A second letter auto-extends the horizontal draft to the right of center.
+        page.locator("#rack .block").first.click()
+        page.locator("#rack .block").first.click()
+        assert page.evaluate("draft.length===2 && draft[1].row===7 && draft[1].col===8")
+        expected=page.evaluate("""() => play(state,{kind:'play',placements:draft},w=>validWord(w,'starter-demo-1'),()=>0.5).score""")
+        assert page.locator("#draft-preview").get_attribute("data-status")=="valid"
+        assert f"{expected} points" in page.locator("#draft-preview").inner_text()
+        assert page.evaluate("state.scores[0]===0 && state.board[7][7]===null")
+        assert not errors,errors
+        print(f"PASS {width}x{height}: deterministic center/adjacent double-tap, true score preview, no premature commit")
+        context.close()
+    context=browser.new_context()
+    page=context.new_page()
+    page.set_content(HTML)
+    # Do not invent a placement on an established board where intent is ambiguous.
+    result=page.evaluate("""() => {
+      const bag=fullBag('classic');
+      state.racks[0]=[bag.find(t=>t.letter==='A'),...bag.filter(t=>t.letter==='E').slice(0,6)];
+      state.board[7][7]={as:'T',points:1,tile:bag.find(t=>t.letter==='T'),owner:1};
+      draft=[];selected=null;render();
+      return autoPlaceTile(state.racks[0][0].id);
+    }""")
+    assert result is False
+    assert page.evaluate("draft.length===0")
+    # Known invalid drafted word is labeled without modifying official score/state.
+    result=page.evaluate("""() => {
+      state=createGame(()=>0.5,'starter-demo-1','classic');
+      const bag=fullBag('classic');
+      const z=bag.find(t=>t.letter==='Z');
+      const x=bag.find(t=>t.letter==='X');
+      state.racks[0]=[z,x,...bag.filter(t=>t.letter==='E').slice(0,5)];
+      draft=[{row:7,col:7,tileId:z.id,flipped:false},{row:7,col:8,tileId:x.id,flipped:false}];
+      render();
+      return {status:document.querySelector('#draft-preview').dataset.status,text:document.querySelector('#draft-preview').textContent};
+    }""")
+    assert result["status"]=="incomplete" and "dictionary" in result["text"].lower(),result
+    assert page.evaluate("state.scores[0]===0")
+    print("PASS no guessing on an occupied board; invalid word warns before submission")
+    context.close()
+    browser.close()
