@@ -20,6 +20,40 @@ with sync_playwright() as p:
         assert page.locator("#rack .block").count()==7
         assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
         assert page.locator("#draft-preview").is_visible()
+        # Seed deterministic nonblank rack tiles for drag tests.
+        page.evaluate("""() => {
+          state=createGame(()=>0.5,'starter-demo-1','classic');
+          const bag=fullBag('classic');
+          state.racks[0]=[bag.find(t=>t.letter==='A'),bag.find(t=>t.letter==='T'),...bag.filter(t=>t.letter==='E').slice(0,5)];
+          draft=[];selected=null;lastRackTap=null;render();
+        }""")
+        # A real pointer gesture transfers a rack tile to a precise board square,
+        # independent of Across/Down, without committing official score.
+        rackbox=page.locator("#rack .block").first.bounding_box()
+        targetbox=page.locator("#board .sq").nth(112).bounding_box()
+        assert rackbox and targetbox
+        sx=rackbox["x"]+rackbox["width"]/2
+        sy=rackbox["y"]+rackbox["height"]/2
+        tx=targetbox["x"]+targetbox["width"]/2
+        ty=targetbox["y"]+targetbox["height"]/2
+        page.mouse.move(sx,sy)
+        page.mouse.down()
+        page.mouse.move((sx+tx)/2,(sy+ty)/2,steps=6)
+        page.mouse.move(tx,ty,steps=6)
+        page.mouse.up()
+        assert page.evaluate("draft.length===1 && draft[0].row===7 && draft[0].col===7")
+        assert page.evaluate("state.scores[0]===0")
+        # Drag an already staged board tile to an adjacent square, then recall it.
+        originalbox=page.locator("#board .sq").nth(112).bounding_box()
+        nextbox=page.locator("#board .sq").nth(113).bounding_box()
+        page.mouse.move(originalbox["x"]+originalbox["width"]/2,originalbox["y"]+originalbox["height"]/2)
+        page.mouse.down()
+        page.mouse.move(nextbox["x"]+nextbox["width"]/2,nextbox["y"]+nextbox["height"]/2,steps=12)
+        page.mouse.up()
+        assert page.evaluate("draft.length===1 && draft[0].row===7 && draft[0].col===8")
+        page.locator("#recall").click()
+        assert page.evaluate("draft.length===0 && state.scores[0]===0")
+
         action=page.locator("#board").evaluate("node => getComputedStyle(node).touchAction")
         assert "pinch-zoom" in action,action
         # Fixed A/T rack ensures deterministic double-tap behavior despite random bags.

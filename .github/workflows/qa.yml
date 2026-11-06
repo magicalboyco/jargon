@@ -2,7 +2,7 @@ name: Jargon alpha checks
 on:
   pull_request:
   push:
-    branches: [main, feature/explicit-word-direction]
+    branches: [main, feature/explicit-word-direction, feature/tile-drag-to-board]
 jobs:
   test:
     runs-on: ubuntu-latest

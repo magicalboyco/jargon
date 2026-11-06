@@ -2,7 +2,7 @@ name: Rebuild Jargon direction preview
 on:
   push:
     branches:
-      - feature/explicit-word-direction
+      - feature/tile-drag-to-board
 permissions:
   contents: write
 jobs:
@@ -25,5 +25,5 @@ jobs:
           git add index.html
           if ! git diff --cached --quiet; then
             git commit -m "build: regenerate direction-aware game [skip ci]"
-            git push origin HEAD:feature/explicit-word-direction
+            git push origin HEAD:feature/tile-drag-to-board
           fi
