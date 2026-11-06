@@ -202,6 +202,9 @@ function startTileDrag(event,tileId,source){
       drag.active=true;
       drag.ghost=block(tile,'tile-drag-ghost');
       drag.ghost.setAttribute('aria-hidden','true');
+      const bounds=origin.getBoundingClientRect();
+      drag.ghost.style.width=bounds.width+'px';
+      drag.ghost.style.height=bounds.height+'px';
       document.body.append(drag.ghost);
       origin.classList.add('tile-drag-origin');
       lastRackTap=null;
