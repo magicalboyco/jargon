@@ -381,3 +381,18 @@ dialog button { min-height: 44px; }
   .rack { width: 100%; }
   .rack .block { flex-basis: calc((100% - 30px)/7); }
 }
+
+/* PR15: the letter board and rack resist unintended swipe scrolling, but pinch zoom remains available. */
+#board,#rack { touch-action: pinch-zoom; }
+#rack .block { touch-action: pinch-zoom; }
+.draft-preview {
+ min-height: 28px; display:flex;align-items:center;justify-content:center;
+ margin:4px auto 2px;padding:5px 9px;border-radius:9px;
+ color:#325047;background:#e9eee5; border:1px solid #c8d9c9;
+ font:750 11px/1.35 var(--ui);text-align:center;
+}
+.draft-preview[data-status="valid"] { color:#124c42;background:#d8ebdf;border-color:#94c6a6; }
+.draft-preview[data-status="incomplete"] { color:#825a34;background:#f3e8d9;border-color:#d9c4a8; }
+@media(max-width:520px) {
+ .draft-preview { min-height:24px;padding:3px 5px;font-size:10px;margin:2px auto 1px; }
+}
