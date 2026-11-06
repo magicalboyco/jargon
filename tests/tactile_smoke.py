@@ -52,7 +52,7 @@ with sync_playwright() as p:
     page.locator("#dialog-close").click()
     assert page.locator("#haptics-row").is_hidden()
     page.select_option("#game-mode","blocks")
-    page.evaluate("""() => {const source=fullBag('blocks');const alternate=source.find(t=>t.alternate);state.racks[0]=[alternate,...source.filter(t=>t.letter==='E').slice(0,6)];render();}""")
+    page.evaluate("""() => {const source=fullBag('blocks');const alternate=source.find(t=>t.alternate);state.racks[0]=[alternate,...source.filter(t=>t.letter==='E'&&t.id!==alternate.id).slice(0,6)];selected=null;draft=[];render();}""")
     result=page.evaluate("""() => {document.querySelector("#rack .block").click();const before={selected,mode:state.mode};document.querySelector("#flip").click();return {...before,flipTile,flipped:document.querySelectorAll(".rack .flipped").length,animating:document.querySelectorAll(".rack .is-flipping").length,disabled:document.querySelector("#flip").disabled};}""")
     assert result["flipped"]==1,result
     assert result["animating"]==1,result
