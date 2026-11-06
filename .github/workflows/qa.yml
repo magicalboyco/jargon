@@ -2,7 +2,7 @@ name: Jargon alpha checks
 on:
   pull_request:
   push:
-    branches: [main, feature/explicit-word-direction, feature/tile-drag-to-board, feature/drag-qa-cursor, feature/mobile-turn-flow-qa, feature/offline-bot-engine, feature/rack-drag-reorder-recall]
+    branches: [main, feature/explicit-word-direction, feature/tile-drag-to-board, feature/drag-qa-cursor, feature/mobile-turn-flow-qa, feature/offline-bot-engine, feature/rack-drag-reorder-recall, fix/compact-mobile-board-width]
 jobs:
   test:
     runs-on: ubuntu-latest
