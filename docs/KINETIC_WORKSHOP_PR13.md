@@ -39,3 +39,6 @@ GitHub Pages currently serves the branch chosen in repository Settings > Pages. 
 
 ## Dependencies and acceptance
 This is a stacked draft PR based on PR #12, which itself depends on prior reviews. Do not merge directly to main, and do not call it public-launch ready. Before accepting the materials, review both theme screenshots and test on a physical device.
+
+## Narrow-screen regression
+An initial 320px Chromium test exposed horizontal overflow from the added optional haptics control. The mobile ruleset selector and optional button now use reduced widths at 350 CSS pixels and below. The next browser QA run checks this together with the other viewport requirements.
