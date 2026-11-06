@@ -168,7 +168,7 @@ $('board').addEventListener('keydown',event=>{
 });
 
 /* One-finger tile dragging: preview only until release. Tap and keyboard inputs remain unchanged. */
-let tileDrag=null,lastTileDropAt=-1000;
+let tileDrag=null,lastTileDropAt=-1000,suppressedClickOrigin=null,suppressedClickUntil=0;
 function startTileDrag(event,tileId,source){
   if(!event.isPrimary||event.button!==0||state.finished||swapping||pendingBlank)return;
   if(tileDrag)return;
@@ -235,6 +235,8 @@ function startTileDrag(event,tileId,source){
     cleanup();
     if(!active)return; // No delay or change for the normal single-tap path.
     lastTileDropAt=performance.now();
+    suppressedClickOrigin=drag.origin;
+    suppressedClickUntil=lastTileDropAt+300;
     if(rackDrop){
       if(source==='board'){
         const index=draft.findIndex(p=>p.tileId===tileId);
@@ -309,7 +311,7 @@ $('theme').lastElementChild.textContent=theme==='playful'?'Playful':'Sophisticat
     el.append(marker);
     el.setAttribute('aria-label',el.getAttribute('aria-label')+', active '+(placementDirection==='vertical'?'down':'across')+' placement cursor, tap again to change direction');
   }
-  el.addEventListener('click',()=>{if(performance.now()-lastTileDropAt<300)return;tapSquare(r,c);});if(pending)el.addEventListener('pointerdown',event=>startTileDrag(event,pending.tileId,'board'));board.append(el);}
+  el.addEventListener('click',()=>{if(el===suppressedClickOrigin&&performance.now()<suppressedClickUntil)return;tapSquare(r,c);});if(pending)el.addEventListener('pointerdown',event=>startTileDrag(event,pending.tileId,'board'));board.append(el);}
   if(hadBoardFocus)board.children[activeCell]?.focus({preventScroll:true});
   const rack=$('rack');rack.replaceChildren();for(const tile of state.racks[state.turn]){if(draft.some(p=>p.tileId===tile.id))continue;const b=block(tile,selected===tile.id?'selected':'');b.dataset.tileId=tile.id;b.setAttribute('aria-keyshortcuts','Alt+ArrowLeft Alt+ArrowRight');b.addEventListener('pointerdown',event=>startTileDrag(event,tile.id,'rack'));if(flipTile===tile.id)b.classList.add('is-flipping');if(shuffleMotion){b.classList.add('is-shuffling');b.style.setProperty('--tile-index',rack.children.length);}b.setAttribute('role','button');b.setAttribute('tabindex','0');b.setAttribute('aria-label',`${tile.blank?'Blank':tileFace(tile)}, ${tileValue(tile)} points${tile.flipped?', flipped alternate face':''}${selected===tile.id?', selected':''}`);const choose=()=>{haptic('tap');const now=performance.now();const repeat=!swapping&&lastRackTap&&lastRackTap.id===tile.id&&now-lastRackTap.at<400;lastRackTap={id:tile.id,at:now};if(repeat&&autoPlaceTile(tile.id))return;if(swapping){if(!swapIds.has(tile.id))swapIds.add(tile.id);else swapIds.delete(tile.id);say(`${swapIds.size} tile(s) selected to swap. Tap Swap again to confirm.`);}else{
     selected=selected===tile.id?null:tile.id;
@@ -321,7 +323,7 @@ $('theme').lastElementChild.textContent=theme==='playful'?'Playful':'Sophisticat
       }
     }
     say(selected?'Tap a board square to place your letter.':'Select a letter to place.');
-  }render();};b.addEventListener('click',()=>{if(performance.now()-lastTileDropAt<300)return;choose();});b.addEventListener('keydown',e=>{
+  }render();};b.addEventListener('click',()=>{if(b===suppressedClickOrigin&&performance.now()<suppressedClickUntil)return;choose();});b.addEventListener('keydown',e=>{
     if(e.altKey&&(e.key==='ArrowLeft'||e.key==='ArrowRight')){
       e.preventDefault();
       const slots=state.racks[state.turn],from=slots.findIndex(t=>t.id===tile.id);
