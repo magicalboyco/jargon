@@ -42,3 +42,13 @@ This is a stacked draft PR based on PR #12, which itself depends on prior review
 
 ## Narrow-screen regression
 An initial 320px Chromium test exposed horizontal overflow from the added optional haptics control. The mobile ruleset selector and optional button now use reduced widths at 350 CSS pixels and below. The next browser QA run checks this together with the other viewport requirements.
+
+## Local Chromium verification (not a real iPhone test)
+The generated standalone HTML was retrieved from the branch-specific GitHub Actions build artifact and tested with local Chromium/Playwright on 2026-11-06. Results:
+- PASS 320×720, 375×812, 390×844, 768×1024 and 1024×768, in Sophisticated and Playful: 225-cell board, seven-letter initial rack, 46px+ control targets, all principal controls visible without horizontal scroll, no JavaScript page errors.
+- PASS event-only placement, flip and shuffle animation classes; theme switching does not replay the shuffle.
+- PASS authoritative local AT word scoring and transient score burst; opponent rack remains unrendered during the score celebration before the pass-device dialog.
+- PASS explicit vibration opt-in, default-off behavior, and CSS reduced-motion/vibration suppression.
+- Initial 320px haptics-toggle overflow was observed and fixed before these passing runs.
+- The latest standalone build's footer correctly identifies the complete local ENABLE2K word list rather than the obsolete starter-list language.
+These tests are headless Chromium checks; Safari, iOS hardware haptics, battery/performance characteristics and hosted HTTPS navigation remain unverified.
