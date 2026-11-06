@@ -410,3 +410,9 @@ dialog button { min-height: 44px; }
 .tile-drag-origin { opacity:.42; }
 #board .sq.drag-target { outline:2px solid #146e79;outline-offset:-2px;background:#c8e5db;box-shadow:inset 0 0 0 2px #fff8; }
 #rack .block, #board .sq { -webkit-user-select:none;user-select:none; }
+
+/* Keep direction selection on the existing rack toolbar row: no added mobile height. */
+.rack-heading { display:flex;align-items:center;justify-content:space-between;gap:4px; }
+.rack-heading .placement-direction { margin:0;flex:1;min-width:0;max-width:195px;justify-content:flex-start; }
+.rack-heading .direction-button { min-height:40px; }
+@media(max-width:520px){.rack-heading .direction-button { min-height:40px;padding:4px 5px;font-size:10px; }.rack-heading .rack-tools {flex-shrink:0;}}
