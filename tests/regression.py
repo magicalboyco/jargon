@@ -44,6 +44,12 @@ with sync_playwright() as p:
     assert page.locator('#blank-picker').is_visible()
     page.locator('#blank-cancel').click()
     assert page.evaluate('draft.length===0 && selected===null')
+    # Escape must also clear selection when native dialog dismissal fires.
+    page.locator('#rack .block').first.click()
+    page.locator('#board .sq').nth(112).click()
+    page.locator('#blank-picker').press('Escape')
+    page.wait_for_function('pendingBlank===null && selected===null')
+    assert page.locator('#blank-picker').is_hidden()
     page.locator('#rack .block').first.click()
     page.locator('#board .sq').nth(112).click()
     page.locator('#blank-letter').select_option('A')

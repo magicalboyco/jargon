@@ -33,3 +33,6 @@ jobs:
           node --check check.js
       - name: Browser regressions
         run: python tests/regression.py
+
+      - name: Workshop visual, layout, reduced-motion checks
+        run: python tests/workshop_visual.py
