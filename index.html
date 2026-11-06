@@ -170037,7 +170037,6 @@ function findBotMove(game, checkWord, options={}) {
   const maxEvaluations=Math.max(1,options.maxEvaluations??2400);
   const maxWords=Math.max(1,options.maxWords??18000);
   const allWords=options.words||getWords(game.dictionaryVersion);
-  const words=Array.from(allWords).filter(w=>typeof w==='string'&&/^[A-Z]{2,9}$/.test(w));
   const rack=game.racks[game.turn]||[];
   const occupied=[];
   for(let r=0;r<15;r++)for(let c=0;c<15;c++){
@@ -170046,6 +170045,31 @@ function findBotMove(game, checkWord, options={}) {
   }
   const opening=occupied.length===0;
   const anchors=opening?[{row:7,col:7,letter:null}]:occupied.slice(0,40);
+  // On the opening turn, prioritize words actually formable from the rack.
+  // For later turns, sample throughout the alphabet rather than one contiguous dictionary slice.
+  function openingFeasible(word) {
+    const used=new Set();
+    function assign(index) {
+      if(index===word.length)return true;
+      const ch=word[index],candidates=[];
+      for(let i=0;i<rack.length;i++){
+        if(used.has(i))continue;
+        const tile=rack[i];
+        if(!tile.blank&&tile.letter===ch)candidates.push(i);
+        else if(!tile.blank&&game.mode==='blocks'&&tile.alternate===ch)candidates.push(i);
+        else if(tile.blank)candidates.push(i);
+      }
+      for(const i of candidates){
+        used.add(i);
+        if(assign(index+1))return true;
+        used.delete(i);
+      }
+      return false;
+    }
+    return assign(0);
+  }
+  const wordList=Array.from(allWords).filter(w=>typeof w==='string'&&/^[A-Z]{2,9}$/.test(w));
+  const words=opening?wordList.filter(w=>w.length<=rack.length&&openingFeasible(w)):wordList;
   const seen=new Set(),choices=[];
   let evaluations=0;
   const expired=()=>clock()-began>=maxTime||evaluations>=maxEvaluations;
@@ -170092,9 +170116,13 @@ function findBotMove(game, checkWord, options={}) {
   }
   // Start at a seed-dependent position so alphabetical dictionary order does not bias every turn.
   const start=words.length?Math.floor(rng()*words.length):0;
+  // A coprime stride prevents a short search budget from clustering within the same alphabetical prefix.
+  let stride=words.length>1?Math.max(1,Math.floor(words.length*0.61803398875)):1;
+  const gcd=(a,b)=>b?gcd(b,a%b):a;
+  while(words.length>1&&gcd(stride,words.length)!==1)stride++;
   for(let count=0;count<Math.min(words.length,maxWords);count++){
     if(expired())break;
-    const word=words[(start+count)%words.length];
+    const word=words[(start+count*stride)%words.length];
     if(opening){
       if(word.length>rack.length)continue;
       for(let i=0;i<word.length;i++){
