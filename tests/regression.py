@@ -83,6 +83,7 @@ with sync_playwright() as p:
     assert page.evaluate("document.body.classList.contains('handoff-lock')")
     assert page.locator("#rack .block").first.evaluate("el=>getComputedStyle(el).visibility")=="hidden"
     page.locator('#dialog-close').click()
+    page.wait_for_function("!document.body.classList.contains('handoff-lock')")
     assert page.locator('#turn-label').inner_text()=="Player 2's turn"
     assert page.locator("#rack .block").first.evaluate("el=>getComputedStyle(el).visibility")=="visible"
     page.locator('#pass').click()
