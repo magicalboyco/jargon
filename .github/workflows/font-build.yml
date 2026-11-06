@@ -1,7 +1,6 @@
 name: Build pinned Fraunces font asset
 on:
-  push:
-    branches: [feature/pr9-enable-fraunces]
+  workflow_dispatch:
 permissions:
   contents: write
 jobs:
