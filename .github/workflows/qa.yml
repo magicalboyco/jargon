@@ -60,3 +60,6 @@ jobs:
 
       - name: Offline bot engine legality and determinism
         run: node tests/bot.test.cjs
+
+      - name: Offline opponent browser end-to-end
+        run: python tests/bot_ui_smoke.py
