@@ -416,3 +416,17 @@ dialog button { min-height: 44px; }
 .rack-heading .placement-direction { margin:0;flex:1;min-width:0;max-width:195px;justify-content:flex-start; }
 .rack-heading .direction-button { min-height:40px; }
 @media(max-width:520px){.rack-heading .direction-button { min-height:40px;padding:4px 5px;font-size:10px; }.rack-heading .rack-tools {flex-shrink:0;}}
+
+/* Directional board cursor: inline SVG stays crisp on high-DPI Safari. */
+#board .sq.active-cursor { position:relative;outline:2px solid var(--teal);outline-offset:-2px;z-index:1; }
+#board .sq .cursor-arrow { position:absolute;inset:1px 1px auto auto;display:grid;place-items:center;
+  width:14px;height:14px;border-radius:50%;background:var(--paper);color:var(--teal);
+  box-shadow:0 1px 3px #172d2d26;pointer-events:none; }
+#board .sq .cursor-arrow svg {display:block;width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2.5;
+  stroke-linecap:round;stroke-linejoin:round; }
+#board .sq.dir-vertical .cursor-arrow {color:var(--green);}
+body.playful #board .sq.active-cursor {outline-color:var(--blue);}
+body.playful #board .sq .cursor-arrow {color:var(--blue);}
+#board .sq.drag-target {outline:2px solid var(--teal);outline-offset:-2px;}
+body.playful #board .sq.drag-target {outline-color:var(--blue);}
+.tile-drag-ghost {left:0;top:0;will-change:transform;box-shadow:0 12px 24px #0005;}
