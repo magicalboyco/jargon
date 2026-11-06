@@ -34,6 +34,8 @@ with sync_playwright() as p:
     ctx=browser.new_context(reduced_motion="reduce")
     page=ctx.new_page()
     page.set_content(HTML)
+    # Use a known nonblank tile so the picker cannot block the placement test.
+    page.evaluate("""() => { const bag=fullBag("classic"); state.racks[0]=[bag.find(t=>t.letter==="A"),...bag.filter(t=>t.letter==="E").slice(0,6)]; draft=[];selected=null;render(); }""")
     page.locator("#rack .block").first.click()
     page.locator("#board .sq").nth(112).click()
     anim=page.locator("#board .block").first.evaluate("node=>getComputedStyle(node).animationName")
