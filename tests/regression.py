@@ -76,7 +76,20 @@ with sync_playwright() as p:
     page.locator('#play').click()
     assert int(page.locator('#score0').inner_text())>0
     assert page.locator('#board .sq .block').count()==2
-    print('PASS scoring valid opening AT move')
+    # The alpha is shared-device hot-seat; a human must explicitly accept handoff.
+    assert page.locator('#dialog').is_visible()
+    assert 'two-person game on one device' in page.locator('#dialog-message').inner_text().lower()
+    assert page.locator('#dialog-close').inner_text()=='Player 2 — Ready to play'
+    assert page.evaluate("document.body.classList.contains('handoff-lock')")
+    assert page.locator("#rack .block").first.evaluate("el=>getComputedStyle(el).visibility")=="hidden"
+    page.locator('#dialog-close').click()
+    assert page.locator('#turn-label').inner_text()=="Player 2's turn"
+    assert page.locator("#rack .block").first.evaluate("el=>getComputedStyle(el).visibility")=="visible"
+    page.locator('#pass').click()
+    assert page.locator('#dialog-close').inner_text()=='Player 1 — Ready to play'
+    page.locator('#dialog-close').click()
+    assert page.locator('#turn-label').inner_text()=="Player 1's turn"
+    print('PASS scoring and two-player handoff, concealed rack, return to player one')
     ctx.close()
     ctx=browser.new_context(java_script_enabled=False)
     page=ctx.new_page()
