@@ -20,7 +20,8 @@ jobs:
           python -m playwright install --with-deps chromium
       - name: Rebuild standalone game
         run: python tools/build.py
-      - name: Ensure generated build was committed
+      - name: Ensure release build was committed
+        if: github.ref == 'refs/heads/main' || github.base_ref == 'main'
         run: git diff --exit-code -- index.html
       - name: Check JavaScript syntax
         run: |
