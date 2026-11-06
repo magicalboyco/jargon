@@ -424,14 +424,14 @@ $('game-mode').addEventListener('change',e=>{
   const mode=e.target.value;
   if(!(mode in MODES)||mode===state.mode)return;
   if(!confirm('Start a NEW '+MODES[mode]+' game? The current game will be replaced. Export it first if you want to keep it.')){e.target.value=state.mode;return;}
-  state=createGame(Math.random,DICTIONARY_VERSION,mode);
-  draft=[];selected=null;swapping=false;swapIds.clear();persist();render();
+  botToken++;botScheduled=false;state=createGame(Math.random,DICTIONARY_VERSION,mode);
+  draft=[];selected=null;cursorTarget=null;swapping=false;swapIds.clear();persist();render();
   say(mode==='blocks'?'Block Flip started: select a block, then tap ↻ Flip to use its alternate letter.':'Classic game started: no flipped letters.');
 });
 $('shuffle').addEventListener('click',()=>{state.racks[state.turn]=shuffled(state.racks[state.turn],Math.random);shuffleMotion=true;persist();render();haptic('tap');});
 $('theme').addEventListener('click',()=>{theme=theme==='playful'?'sophisticated':'playful';safeStorage.set(THEME,theme);render();});
 $('rules').addEventListener('click',()=>showDialog('How to play',`Classic uses familiar 7-tile word-game rules. Block Flip uses 104 dual-face blocks: select a rack tile and tap Flip to change its alternate face. Use only legal words from the local dictionary.`));
-$('reset').addEventListener('click',()=>{if(!confirm('Delete the current local game permanently and start fresh?'))return;safeStorage.remove(STORE);state=createGame(Math.random,DICTIONARY_VERSION,state.mode);draft=[];selected=null;swapIds.clear();persist();render();say('A fresh game is ready.');});
+$('reset').addEventListener('click',()=>{if(!confirm('Delete the current local game permanently and start fresh?'))return;botToken++;botScheduled=false;safeStorage.remove(STORE);state=createGame(Math.random,DICTIONARY_VERSION,state.mode);draft=[];selected=null;cursorTarget=null;swapIds.clear();persist();render();say('A fresh game is ready.');});
 $('import').addEventListener('click',()=>$('import-file').click());
 $('import-file').addEventListener('change',async e=>{
   const f=e.target.files?.[0];if(!f)return;
@@ -443,10 +443,10 @@ $('import-file').addEventListener('change',async e=>{
      !Array.isArray(game.scores)||game.scores.length!==2||!['classic','blocks'].includes(game.mode||'classic')||
      !Number.isInteger(game.turn)||game.turn<0||game.turn>1||!Array.isArray(game.history))throw new Error('Invalid Jargon save format');
    if(!confirm('Replace your current game with this imported save?'))return;
-   state=game;state.mode||='classic';draft=validDraft(obj.draft,state);selected=null;swapping=false;swapIds.clear();persist();render();
+   botToken++;botScheduled=false;state=game;state.mode||='classic';opponentMode=obj.opponent==='computer'?'computer':'local';draft=validDraft(obj.draft,state);selected=null;cursorTarget=null;swapping=false;swapIds.clear();persist();render();if(opponentMode==='computer'&&state.turn===1)scheduleBotTurn();
    say('Game imported locally. Your save never left this device.');
   }catch(error){say('Import failed: '+error.message);}finally{e.target.value='';}
 });
-$('export').addEventListener('click',()=>{const json=JSON.stringify({version:2,exportedAt:new Date().toISOString(),game:state,draft},null,2);const url=URL.createObjectURL(new Blob([json],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='jargon-save.json';a.click();URL.revokeObjectURL(url);say('Game exported as JSON.');});
+$('export').addEventListener('click',()=>{const json=JSON.stringify({version:2,exportedAt:new Date().toISOString(),game:state,draft,opponent:opponentMode},null,2);const url=URL.createObjectURL(new Blob([json],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='jargon-save.json';a.click();URL.revokeObjectURL(url);say('Game exported as JSON.');});
 render();document.body.classList.add('js-ready');say(opponentMode==='computer'?'Play against the computer: place your first word.':'Select a tile, then tap the board to place it.');if(opponentMode==='computer'&&state.turn===1)scheduleBotTurn();
 if(!safeStorage.set('__jargon_storage_check','1'))say('You can play here, but this file viewer may not save progress. For reliable saving, open Jargon in Safari.');else safeStorage.remove('__jargon_storage_check');
