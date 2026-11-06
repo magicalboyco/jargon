@@ -91,7 +91,7 @@ with sync_playwright() as playwright:
     assert int(page.locator('#score0').inner_text())>0
     assert page.locator('.score-pop').count()==1
     assert page.locator('#rack .block').count()==0,'Next player rack must be hidden during score burst'
-    page.wait_for_function("document.querySelector('#dialog').open",{},{'timeout':3000})
+    page.wait_for_function("document.querySelector('#dialog').open", timeout=3000)
     assert page.locator('#rack .block').count()==7
     assert page.locator('#board .sq .block').count()==2
     print('PASS scored AT move, score burst and private next-player handoff')
