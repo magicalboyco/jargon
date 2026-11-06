@@ -1,6 +1,6 @@
 # Jargon — privacy-first word-game alpha
 
-**Not a commercial release.** This repository provides a local, single-device word-game alpha with Classic and experimental Block Flip modes, plus separate Playful and Sophisticated themes. It is not online multiplayer and does not have the complete production dictionary.
+**Not a commercial release.** This repository provides a local, single-device word-game alpha with Classic and experimental Block Flip modes, plus separate Playful and Sophisticated themes. It is not online multiplayer. It now includes a pinned, complete ENABLE2K-derived offline dictionary for 2–15 letter words; this differs from some commercial tournament dictionaries.
 
 ## Play and build
 
@@ -9,12 +9,12 @@
 The maintainable source lives in `src/`:
 
 - `engine.js` — game rules, move validation and scoring; independent of the DOM and network
-- `dictionary.js` — **incomplete starter dictionary**, versioned as an alpha
+- `dictionary.js` and `enable/` — versioned offline ENABLE2K word data (169,266 board-valid entries) plus the original starter list for legacy game compatibility
 - `ui.js` — browser rendering, controls, storage and accessibility
-- `styles.css` — theme and layout rules; CSS overrides have been deduplicated and root variables consolidated
+- `styles.css` and `fonts/` — both themes and self-hosted, OFL-licensed Fraunces display font in the standalone build
 - `shell.html` — document structure and static no-JavaScript board fallback
 
-`tools/build.py` concatenates local sources into `index.html`. No install, server or third-party build package is needed to run the builder:
+`tools/build.py` concatenates local sources, dictionary shards, and the checked-in font subset into `index.html`. No runtime network connection or third-party build package is needed to rerun the builder. The font preparation script has optional build-only dependencies:
 
 ```bash
 python tools/build.py
@@ -48,3 +48,10 @@ The suite exercises 320–768px screens, roving keyboard focus, native modal-fre
 ## Not yet finished
 
 Full dictionary, secure guest identities, Cloudflare multiplayer, real-device Safari testing, complete accessibility/contrast evaluation, automated production hosting and long-term offline distribution. Read `docs/TECHNICAL_AUDIT_V7.md` for a precise audit of this cleanup.
+
+## Dictionary and font provenance
+
+- Dictionary provenance, checksum, accepted-word policy, old save compatibility: [`docs/DICTIONARY.md`](docs/DICTIONARY.md).
+- Fraunces font license and reproducible subset recipe: [`src/fonts/README.md`](src/fonts/README.md) and [`src/fonts/OFL.txt`](src/fonts/OFL.txt).
+- A dedicated GitHub Actions workflow verifies the upstream font Git blob hash before regenerating the inline WOFF2 subset. Players never contact Google Fonts or a tracking service.
+- Visual and dictionary test scripts: `tests/typography_smoke.py` and `tests/dictionary_smoke.py`.
