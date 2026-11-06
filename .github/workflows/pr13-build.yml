@@ -31,3 +31,10 @@ jobs:
             git commit -m "Bundle PR13 tactile sources into offline Jargon HTML"
             git push origin HEAD:design/kinetic-workshop-pr13
           fi
+
+      - name: Provide reproducible playable standalone preview
+        uses: actions/upload-artifact@v4
+        with:
+          name: jargon-pr13-standalone-preview
+          path: index.html
+          if-no-files-found: error
