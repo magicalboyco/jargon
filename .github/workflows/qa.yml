@@ -2,7 +2,7 @@ name: Jargon alpha checks
 on:
   pull_request:
   push:
-    branches: [main, feature/explicit-word-direction, feature/tile-drag-to-board, feature/drag-qa-cursor, feature/mobile-turn-flow-qa]
+    branches: [main, feature/explicit-word-direction, feature/tile-drag-to-board, feature/drag-qa-cursor, feature/mobile-turn-flow-qa, feature/offline-bot-engine]
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -57,3 +57,6 @@ jobs:
 
       - name: Direction cursor and crosswords
         run: python tests/drag_direction_smoke.py
+
+      - name: Offline bot engine legality and determinism
+        run: node tests/bot.test.cjs
