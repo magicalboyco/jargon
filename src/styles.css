@@ -468,7 +468,7 @@ dialog button { min-height: 44px; }
 .haptics-toggle[aria-pressed='true'] { background:#d7f1e8;border-color:#4c8a73; }
 .haptics-toggle[hidden] { display:none !important; }
 @media (hover:hover) {
- .sq:not(:has(.block)):hover { filter:brightness(1.06); }
+ .sq:not(.occupied):hover { filter:brightness(1.06); }
 }
 
 /* Narrow-phone labels collapse to preserve the minimum gameplay width. */
