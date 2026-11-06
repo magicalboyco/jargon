@@ -17,7 +17,7 @@ with sync_playwright() as p:
     report=page.evaluate("""() => ({
         wordCount:dictionarySize, startupMs:dictionaryInitMs,
         version:DICTIONARY_VERSION,
-        positive:['JARGON','QUIZZES','HELLO','ZYZZYVAS','SCRABBLE','UNPLAYABLE'].every(validWord),
+        positive:['JARGON','QUIZZES','HELLO','ZYZZYVAS','SCRABBLE','UNPLAYABLE'].every(w=>validWord(w)),
         negative:['QI','ZA','AAA','ZZZZ','A','123'].every(w=>!validWord(w)),
         oldGame:validWord('JARGON','starter-demo-1'),
         stillNotAdded:!validWord('ZYZZYVAS','starter-demo-1'),
