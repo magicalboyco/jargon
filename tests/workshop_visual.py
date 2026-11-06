@@ -42,7 +42,11 @@ with sync_playwright() as p:
     ctx=browser.new_context(reduced_motion="reduce")
     page=ctx.new_page()
     page.set_content(HTML)
-    page.locator("#rack .block").first.click()
+    # Choose a nonblank tile: a random blank opens the letter picker rather than placing immediately.
+    # This test verifies single-tap placement, not the separate blank-tile flow.
+    nonblank_index=page.evaluate("state.racks[state.turn].findIndex(tile => !tile.blank)")
+    assert nonblank_index>=0,"No ordinary tile available in rack"
+    page.locator("#rack .block").nth(nonblank_index).click()
     page.locator("#board .sq").nth(112).click()
     assert page.locator("#board .block.placed").count()==1
     animation=page.locator("#board .block.placed").evaluate("el=>getComputedStyle(el).animationName")
