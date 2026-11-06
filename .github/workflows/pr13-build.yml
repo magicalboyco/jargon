@@ -1,0 +1,33 @@
+name: Keep PR13 standalone HTML synchronized
+on:
+  push:
+    branches: [design/kinetic-workshop-pr13]
+    paths:
+      - 'src/ui.js'
+      - 'src/styles.css'
+      - 'src/shell.html'
+      - '.github/workflows/pr13-build.yml'
+permissions:
+  contents: write
+jobs:
+  bundle:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: design/kinetic-workshop-pr13
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Rebuild offline alpha from committed source
+        run: python tools/build.py
+      - name: Commit deterministic generated standalone build
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          if ! git diff --cached --quiet; then
+            git commit -m "Bundle PR13 tactile sources into offline Jargon HTML"
+            git push origin HEAD:design/kinetic-workshop-pr13
+          fi
