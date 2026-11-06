@@ -697,7 +697,9 @@ $('blank-picker').addEventListener('close',()=>{
  if(pendingBlank)clearPendingBlank();
 });
 $('blank-cancel').addEventListener('click',()=>{
- // The dialog close event clears the selected blank even when canceled with Escape.
+ // Reset immediately so a fast tap cannot reuse a stale blank selection.
+ // The close listener still handles Escape and native dialog dismissal.
+ if(pendingBlank)clearPendingBlank();
  $('blank-picker').close();
 });
 $('blank-confirm').addEventListener('click',()=>{
