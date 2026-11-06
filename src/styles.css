@@ -404,3 +404,9 @@ dialog button { min-height: 44px; }
 .placement-direction .direction-button.active { background:#1b5960;color:#fff;border-color:#12454b; }
 .placement-direction .direction-button:focus-visible { outline:3px solid #d88f40;outline-offset:2px; }
 @media (max-width:350px){.placement-label{display:none}.placement-direction .direction-button{min-height:34px}}
+
+/* Pointer-driven tile placement keeps the board fully interactive and pinch-zoom enabled. */
+.tile-drag-ghost { position:fixed!important;z-index:999;pointer-events:none;transform:translate(-50%,-50%) scale(1.12);margin:0!important;box-shadow:0 9px 20px #33221255;opacity:.94; }
+.tile-drag-origin { opacity:.42; }
+#board .sq.drag-target { outline:2px solid #146e79;outline-offset:-2px;background:#c8e5db;box-shadow:inset 0 0 0 2px #fff8; }
+#rack .block, #board .sq { -webkit-user-select:none;user-select:none; }
