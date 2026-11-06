@@ -2,7 +2,7 @@ name: Jargon alpha checks
 on:
   pull_request:
   push:
-    branches: [main]
+    branches: [main, feature/explicit-word-direction]
 jobs:
   test:
     runs-on: ubuntu-latest

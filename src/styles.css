@@ -396,3 +396,11 @@ dialog button { min-height: 44px; }
 @media(max-width:520px) {
  .draft-preview { min-height:24px;padding:3px 5px;font-size:10px;margin:2px auto 1px; }
 }
+
+/* Explicit placement direction: available next to rack without expanding the board. */
+.placement-direction { display:flex;align-items:center;justify-content:center;gap:5px;margin:3px 0 5px;min-width:0; }
+.placement-label { font:800 9px/1.1 var(--ui);letter-spacing:.04em;color:#665642;margin-right:3px;white-space:nowrap; }
+.placement-direction .direction-button { flex:1;min-width:0;min-height:34px;padding:4px 6px;border-radius:8px;border:1px solid #c7b498;background:#f8f1e5;color:#53412f;font:800 11px/1.15 var(--ui);cursor:pointer;touch-action:manipulation; }
+.placement-direction .direction-button.active { background:#1b5960;color:#fff;border-color:#12454b; }
+.placement-direction .direction-button:focus-visible { outline:3px solid #d88f40;outline-offset:2px; }
+@media (max-width:350px){.placement-label{display:none}.placement-direction .direction-button{min-height:34px}}

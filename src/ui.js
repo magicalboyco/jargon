@@ -69,22 +69,43 @@ function block(tile,css='',label=tileFace(tile)){
 }
 function tileAt(row,col){return draft.find(p=>p.row===row&&p.col===col);}
 
+// Draft direction affects only the optional double-tap helper; manual board taps always choose exact squares.
 let lastRackTap=null;
+let placementDirection='horizontal';
+function setPlacementDirection(direction){
+  if(direction!=='horizontal'&&direction!=='vertical')return;
+  placementDirection=direction;
+  lastRackTap=null;
+  for(const button of document.querySelectorAll('[data-placement-direction]')){
+    const active=button.dataset.placementDirection===direction;
+    button.setAttribute('aria-pressed',String(active));
+    button.classList.toggle('active',active);
+  }
+  say(direction==='vertical'?'Vertical placement selected. Tap a tile, then a board square; double-tap extends downward.':'Horizontal placement selected. Tap a tile, then a board square; double-tap extends right.');
+}
+document.querySelectorAll('[data-placement-direction]').forEach(button=>button.addEventListener('click',()=>setPlacementDirection(button.dataset.placementDirection)));
 function chooseAutoSquare(){
   if(state.finished)return null;
   const empty=state.board.every(row=>row.every(cell=>!cell));
   if(empty){
     if(!draft.length)return {row:7,col:7};
-    const center=draft.find(p=>p.row===7&&p.col===7);
-    if(!center)return null;
+    if(!draft.some(p=>p.row===7&&p.col===7))return null;
   }
-  if(!draft.length)return null; // Existing boards need an explicit placement; never guess at an opponent's word.
-  const row=draft[0].row;
-  if(!draft.every(p=>p.row===row))return null;
-  const right=Math.max(...draft.map(p=>p.col))+1;
-  const left=Math.min(...draft.map(p=>p.col))-1;
-  for(const col of [right,left]){
-    if(col>=0&&col<SIZE&&!state.board[row][col]&&!tileAt(row,col))return {row,col};
+  if(!draft.length)return null; // Never guess on an established board without a draft.
+  const vertical=placementDirection==='vertical';
+  const fixed=vertical?draft[0].col:draft[0].row;
+  if(!draft.every(p=>(vertical?p.col:p.row)===fixed))return null;
+  const min=Math.min(...draft.map(p=>vertical?p.row:p.col));
+  const max=Math.max(...draft.map(p=>vertical?p.row:p.col));
+  // Skip already committed letters while extending a contiguous line.
+  for(const step of [1,-1]){
+    let next=step>0?max+1:min-1;
+    while(next>=0&&next<SIZE){
+      const row=vertical?next:fixed, col=vertical?fixed:next;
+      if(tileAt(row,col))break;
+      if(!state.board[row][col])return {row,col};
+      next+=step;
+    }
   }
   return null;
 }
@@ -92,7 +113,7 @@ function autoPlaceTile(id){
   const tile=state.racks[state.turn].find(t=>t.id===id);
   if(state.finished||swapping||pendingBlank||!tile||tile.blank||draft.some(p=>p.tileId===id))return false;
   const cell=chooseAutoSquare();
-  if(!cell){say('Choose a square on the board. Auto-place works from the opening center or a horizontal draft.');return false;}
+  if(!cell){say('Choose a square on the board. Auto-place follows your chosen direction from the center or an aligned draft.');return false;}
   selected=id;
   tapSquare(cell.row,cell.col);
   return true;
