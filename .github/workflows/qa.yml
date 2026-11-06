@@ -51,3 +51,6 @@ jobs:
 
       - name: Tactile action effects and reduced-motion behavior
         run: python tests/tactile_smoke.py
+
+      - name: Mobile draft preview and safe auto-placement
+        run: python tests/mobile_draft_smoke.py
