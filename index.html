@@ -102,6 +102,121 @@ body.playful .sq{overflow:hidden}
 .noscript-alert{display:block;background:#fff6df;color:#5a3425;padding:12px;font-size:13px;line-height:1.5;border:2px solid #c76d51}
 /* The static board remains visible if the viewer refuses to execute JavaScript. */
 .board .sq.fallback{pointer-events:none}
+
+/* Jargon: board-first mobile gameplay system, design iteration 2.
+   Original visual treatment; no remote fonts, SDKs or requests. */
+:root {
+  --j-bg:#e9eee8; --j-navy:#173b53; --j-ink:#233746; --j-muted:#607684;
+  --j-line:#91a8b3; --j-gold:#e5b958; --j-ivory:#fff9e9;
+  --j-wood:#edcf96; --j-rust:#bc5647;
+}
+html { background:var(--j-bg); }
+body { background:var(--j-bg);color:var(--j-ink); }
+.shell { max-width:1050px;padding:10px 14px 24px; }
+.top {background:var(--j-navy);border-radius:13px 13px 0 0;min-height:61px;padding:9px 15px;border:0;}
+.top .eyebrow {font-size:8px;letter-spacing:.19em;color:#bcd5de;}
+.top h1 {font-size:31px;color:#fffef4;line-height:1.06;}
+.top-actions { gap:7px; }
+.icon-button { background:#ffffff15;border:1px solid #c2d5de65;color:#fff;border-radius:9px;min-width:42px;min-height:41px;padding:9px 12px; }
+.icon-button:active,.text-button:active {opacity:.75;}
+.intro {display:none;}
+.game-layout { gap:16px;grid-template-columns:minmax(0,650px) minmax(200px,1fr); }
+.game { border:1px solid #9fb3bc;background:#f6f9f7;border-radius:0 0 12px 12px;box-shadow:0 8px 22px #1d364b17; }
+.scorebar { background:#f7f8f4;display:grid;grid-template-columns:1fr 1.24fr 1fr;gap:7px;padding:8px;min-height:66px;border-bottom:1px solid #c7d5d8; }
+.player { background:#e7ebeb;border-radius:7px;display:flex;justify-content:center;align-items:flex-start;opacity:.85;box-shadow:none;padding:7px 11px; }
+.player.active {background:#fff0c6;box-shadow:inset 0 0 0 2px #d9ab49;opacity:1;}
+.player-label {font-size:9px;letter-spacing:.075em;color:#607283;}
+.player strong {font-size:23px;line-height:1.0;color:var(--j-ink);font-variant-numeric:tabular-nums;}
+.turn-center {font-size:12px;color:var(--j-navy);line-height:1.3;align-self:center;letter-spacing:-.01em;}
+.turn-center small {font-size:10px;color:#627987;margin-top:4px;}
+.board-wrap {background:#a9b9b6;padding:5px;}
+.board {aspect-ratio:1;gap:1px;border-radius:2px;padding:1px;background:#839ca9;box-shadow:inset 0 0 0 1px #7994a0;}
+.sq {border-radius:1px;background:#f6f4ec;color:#9da4a6;transition:background .1s linear;}
+.sq.premium-DL {background:#cfe8ed;color:#275b78;}
+.sq.premium-TL {background:#a3d1c7;color:#20574d;}
+.sq.premium-DW {background:#f5d4cb;color:#874638;}
+.sq.premium-TW {background:#edb878;color:#683e22;}
+.sq.center {background:#f6d9b6;color:#955342;}
+.sq .bonus {font-size:clamp(7px,1.25vw,10px);font-weight:900;letter-spacing:-.03em;}
+.sq.center .bonus {font-size:clamp(12px,2.6vw,17px);}
+/* Sophisticated tiles: precise square, rounded-heavy lettering, restrained natural wood. */
+.block {border:1px solid #c29a62;border-radius:3px;background:#f0d5a1;box-shadow:inset 0 1px 0 #fff3d5,inset 0 -2px 0 #c29356;color:#3d3025;font-family:'Cooper Black','Rockwell Extra Bold',Georgia,serif;font-weight:900;transform:none;}
+.block .face {width:100%;height:100%;background:linear-gradient(145deg,#f6dfb4,#eac68c);border:0;border-radius:2px;text-shadow:0 1px 0 #ffefcc;}
+.block .points {bottom:3%;right:5%;font-weight:900;color:#57422c;font-family:ui-sans-serif,system-ui,sans-serif;}
+.sq .block {font-size:clamp(12px,2.65vw,25px);box-shadow:inset 0 1px #ffe8bf,inset 0 -1px #bc8e4d;}
+.block.selected {outline:3px solid #226e9e;outline-offset:-2px;transform:translateY(-2px);z-index:2;}
+.block.placed {outline:2px solid #306c57;outline-offset:-2px;filter:none;}
+.rack-area {background:#f8faf7;border-top:1px solid #a9b6b6;padding:10px 12px 13px;}
+.rack-heading {font-size:11px;letter-spacing:.10em;color:#405c6d;}
+.text-button {color:#245e7e;padding:5px 7px;font-size:12px;}
+.rack {margin:8px auto 8px;gap:6px;min-height:0;align-items:center;}
+.rack .block {width:min(13.4%,60px);font-size:clamp(23px,4vw,35px);aspect-ratio:1;}
+.rack .block .points {font-size:9px;bottom:6%;right:7%;}
+.hint {font-size:11px;line-height:1.3;color:#546772;min-height:0;margin:0 auto 7px;max-width:460px;}
+.controls {display:grid;grid-template-columns:1fr 1fr 1fr 1.8fr;gap:6px;margin-top:4px;}
+.controls button {min-height:44px;border-radius:8px;box-shadow:none;font-size:12px;font-weight:800;padding:9px 4px;}
+.controls .primary {background:#1e648f;color:#fff;box-shadow:inset 0 -3px 0 #174766;}
+.controls .secondary {background:#e6edee;color:#284d67;border:1px solid #d1dddd;}
+.controls button:focus-visible,.sq:focus-visible,.rack .block:focus-visible{outline:3px solid #174d88;outline-offset:1px;}
+.sidebar {gap:10px;}
+.panel {background:#fffdf8;border:1px solid #cbd8d8;border-radius:10px;box-shadow:none;}
+.panel.small {padding:14px;}
+.panel h3 {font-size:25px;}
+.panel .panel-kicker {font-size:10px;}
+.privacy {background:#eef5f0!important;}
+footer {padding:12px 5px;color:#597282;}
+dialog {border-radius:13px;max-width:min(90vw,400px);}
+/* Block toy styling is a player preference, never a change in game rules. */
+body.playful .block {border:3px solid #286d8c;border-radius:6px;background:#cba778;box-shadow:inset 0 1px 0 #fff8dd,2px 2px 0 #8f674b;color:#286d8c;}
+body.playful .block .face {height:100%;width:100%;background:#fae9c7;border-radius:3px;}
+body.playful .block[data-color='1'] {border-color:#c64b3d;color:#c64b3d;}
+body.playful .block[data-color='2'] {border-color:#458057;color:#458057;}
+body.playful .block[data-color='3'] {border-color:#e0aa2e;color:#a87612;}
+body.playful .board {gap:1px;}
+body.playful .sq {overflow:hidden;}
+@media(max-width:850px) {
+ .game-layout{display:block;}
+ .sidebar{margin:12px 10px;display:grid;grid-template-columns:1fr 1fr;}
+ .sidebar .panel:first-child{display:none;}
+ .sidebar .privacy{grid-column:1/-1;}
+}
+@media(max-width:520px) {
+ html,body{background:#eaf0ef;}
+ .shell{padding:0 0 env(safe-area-inset-bottom,0px);max-width:none;}
+ .top{border-radius:0;min-height:56px;padding:8px max(10px,env(safe-area-inset-left,0px));}
+ .top h1{font-size:29px;}
+ .top .eyebrow{font-size:7px;}
+ .icon-button{min-width:39px;min-height:38px;padding:8px 10px;}
+ .icon-button span{display:none;}
+ .game{border:none;border-radius:0;box-shadow:none;}
+ .scorebar{padding:5px 7px;gap:5px;min-height:62px;}
+ .player{padding:7px 8px;}
+ .player-label{font-size:8px;}
+ .player strong{font-size:21px;}
+ .turn-center{font-size:11px;}
+ .turn-center small{font-size:9px;}
+ .board-wrap{padding:3px;}
+ .board{gap:1px;padding:1px;}
+ .sq .bonus{font-size:clamp(6px,1.65vw,8px);}
+ .sq.center .bonus{font-size:12px;}
+ .sq .block{font-size:clamp(11px,3.15vw,15px);}
+ .sq .block .points{font-size:6px;}
+ .rack-area{padding:9px 8px max(12px,env(safe-area-inset-bottom,0px));}
+ .rack{margin:7px auto;gap:5px;}
+ .rack .block{width:13%;font-size:clamp(22px,7vw,31px);}
+ .rack .block .points{font-size:8px;}
+ .hint{font-size:10px;margin-bottom:6px;}
+ .controls{gap:5px;}
+ .controls button{font-size:11px;min-height:44px;padding:8px 3px;}
+ .sidebar{margin:12px 10px;display:block;}
+ .sidebar .panel{margin-bottom:9px;}
+ .panel.small{padding:12px;}
+ footer{padding:8px 12px 22px;}
+}
+@media(prefers-reduced-motion:reduce) {
+ .block,.sq,.controls button{transition:none!important;animation:none!important;}
+}
+
 </style></head>
 <body><div class="shell">
 <header class="top"><div><div class="eyebrow">YOUR WORDS. YOUR GAME.</div><h1>Jargon<span class="logo-dot">.</span></h1></div><div class="top-actions"><button id="theme" class="icon-button" type="button" aria-label="Switch visual style">◧ <span>Sophisticated</span></button><button id="rules" class="icon-button" type="button">ⓘ Rules</button></div></header>
