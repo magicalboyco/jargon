@@ -1,5 +1,7 @@
 # Jargon
 
+**Play:** https://magicalboyco.github.io/jargon/ (served from `main` / root once Settings > Pages is set to deploy from a branch. Not verified live as of 2026-11-06.)
+
 A privacy-first, turn-based word game. **Alpha — not production ready.**
 
 ## Play
@@ -19,7 +21,7 @@ The mobile game screen is **board-first**: compact header, both players' scores,
 - Limited starter dictionary **not** the complete ENABLE list.
 - Local save/export/reset when browser storage and download APIs permit.
 - Server code is not deployed; online multiplayer, authentication, complete dictionary, solo AI, rankings, notifications and tournaments are **not yet available**.
-- Automated game-engine tests passed locally (15 tests), but the redesigned interface **has not yet passed a real iPhone visual/interaction test**.
+- Engine tests are **not yet in this repository** (an earlier local run reported 15 passing tests; that code has not been pushed). The redesigned interface **has not yet passed a real iPhone visual/interaction test**.
 
 ## Development priorities
 
