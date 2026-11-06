@@ -40,7 +40,7 @@ let hapticsEnabled=safeStorage.get(HAPTICS_KEY)==='on';
 function motionAllowed(){return !window.matchMedia||!matchMedia('(prefers-reduced-motion: reduce)').matches;}
 function haptic(kind){
   if(!hapticsEnabled||!motionAllowed()||typeof navigator.vibrate!=='function')return;
-  const values={tap:7,drop:[12,20,7],flip:10,success:[15,45,22],error:[25,35,25]};
+  const values={hover:5,tap:7,drop:[12,20,7],flip:10,success:[15,45,22],error:[25,35,25]};
   try{navigator.vibrate(values[kind]||7);}catch(_error){}
 }
 let dropTile=null,flipTile=null,shuffleMotion=false,pendingScore=null;
@@ -72,6 +72,14 @@ function tileAt(row,col){return draft.find(p=>p.row===row&&p.col===col);}
 // Draft direction affects only the optional double-tap helper; manual board taps always choose exact squares.
 let lastRackTap=null;
 let placementDirection='horizontal';
+let cursorTarget=null;
+function cursorAdvance(row,col){
+  const vertical=placementDirection==='vertical';
+  const dr=vertical?1:0,dc=vertical?0:1;
+  let r=row+dr,c=col+dc;
+  while(inBounds(r,c)&&(state.board[r][c]||tileAt(r,c))){r+=dr;c+=dc;}
+  return inBounds(r,c)?{row:r,col:c}:null;
+}
 function setPlacementDirection(direction){
   if(direction!=='horizontal'&&direction!=='vertical')return;
   placementDirection=direction;
@@ -81,6 +89,7 @@ function setPlacementDirection(direction){
     button.setAttribute('aria-pressed',String(active));
     button.classList.toggle('active',active);
   }
+  if(cursorTarget)render();
   say(direction==='vertical'?'Vertical placement selected. Tap a tile, then a board square; double-tap extends downward.':'Horizontal placement selected. Tap a tile, then a board square; double-tap extends right.');
 }
 document.querySelectorAll('[data-placement-direction]').forEach(button=>button.addEventListener('click',()=>setPlacementDirection(button.dataset.placementDirection)));
@@ -164,7 +173,8 @@ function startTileDrag(event,tileId,source){
   const tile=state.racks[state.turn].find(t=>t.id===tileId);
   if(!tile)return;
   const startX=event.clientX,startY=event.clientY,origin=event.currentTarget;
-  const drag={pointerId:event.pointerId,tileId,source,origin,startX,startY,active:false,ghost:null,target:null};
+  const drag={pointerId:event.pointerId,tileId,source,origin,startX,startY,active:false,ghost:null,target:null,frame:0,point:null};
+  if(origin.setPointerCapture){try{origin.setPointerCapture(event.pointerId);}catch(_error){/* Unsupported or invalid pointer: window handlers still cover it. */}}
   tileDrag=drag;
   const locate=(x,y)=>{
     const square=document.elementFromPoint(x,y)?.closest('#board .sq');
@@ -181,6 +191,7 @@ function startTileDrag(event,tileId,source){
       drag.target?.square.classList.remove('drag-target');
       drag.target=hit;
       hit?.square.classList.add('drag-target');
+      if(hit&&drag.active)haptic('hover');
     }
   };
   const move=(e)=>{
@@ -191,15 +202,21 @@ function startTileDrag(event,tileId,source){
       drag.active=true;
       drag.ghost=block(tile,'tile-drag-ghost');
       drag.ghost.setAttribute('aria-hidden','true');
+      const bounds=origin.getBoundingClientRect();
+      drag.ghost.style.width=bounds.width+'px';
+      drag.ghost.style.height=bounds.height+'px';
       document.body.append(drag.ghost);
       origin.classList.add('tile-drag-origin');
       lastRackTap=null;
     }
-    if(drag.ghost){
-      drag.ghost.style.left=e.clientX+'px';
-      drag.ghost.style.top=(e.clientY-35)+'px';
-    }
-    paintTarget(locate(e.clientX,e.clientY));
+    drag.point={x:e.clientX,y:e.clientY};
+    if(!drag.frame)drag.frame=requestAnimationFrame(()=>{
+      drag.frame=0;
+      if(tileDrag!==drag||!drag.point)return;
+      const {x,y}=drag.point;
+      if(drag.ghost)drag.ghost.style.transform='translate3d('+(x-20)+'px,'+(y-62)+'px,0) scale(1.12)';
+      paintTarget(locate(x,y));
+    });
   };
   const end=(e)=>{
     if(e.pointerId!==drag.pointerId)return;
@@ -224,14 +241,23 @@ function startTileDrag(event,tileId,source){
     window.removeEventListener('pointermove',move);
     window.removeEventListener('pointerup',end);
     window.removeEventListener('pointercancel',cancel);
+    window.removeEventListener('blur',cleanup);
+    drag.origin.removeEventListener('lostpointercapture',lostCapture);
+    if(drag.frame)cancelAnimationFrame(drag.frame);
+    if(drag.origin.hasPointerCapture?.(drag.pointerId)){
+      try{drag.origin.releasePointerCapture(drag.pointerId);}catch(_error){}
+    }
     drag.target?.square.classList.remove('drag-target');
     drag.ghost?.remove();
     drag.origin.classList.remove('tile-drag-origin');
     if(tileDrag===drag)tileDrag=null;
   }
+  const lostCapture=()=>cleanup();
   window.addEventListener('pointermove',move);
   window.addEventListener('pointerup',end);
   window.addEventListener('pointercancel',cancel);
+  window.addEventListener('blur',cleanup);
+  drag.origin.addEventListener('lostpointercapture',lostCapture);
 }
 
 function render(){
@@ -243,9 +269,28 @@ function render(){
   flipBtn.setAttribute('aria-label',canFlip?'Flip selected letter to its alternate face':'Select a nonblank rack tile to flip');
   $('flip-explain').textContent=state.mode==='blocks'?'Block Flip: select a tile, then tap ↻ Flip to switch its letter. Flipped points halve (minimum 1). Recall any staged tile to flip it.':'Classic: no flips. Select a non-blank rack tile to create a word. Remember to cover the center square on the opening move.';
 $('theme').lastElementChild.textContent=theme==='playful'?'Playful':'Sophisticated';$('score0').textContent=state.scores[0];$('score1').textContent=state.scores[1];$('player0').classList.toggle('active',state.turn===0);$('player1').classList.toggle('active',state.turn===1);$('turn-label').textContent=state.finished?`Game over · ${state.winner==='tie'?'Tie':`Player ${state.winner+1} wins`}`:`Player ${state.turn+1}'s turn`;$('bag-count').textContent=`${state.bag.length} letters left`;
-  const board=$('board');const hadBoardFocus=board.contains(document.activeElement);board.replaceChildren();for(let r=0;r<SIZE;r++)for(let c=0;c<SIZE;c++){const el=document.createElement('button');el.type='button';el.className='sq';el.tabIndex=(r*SIZE+c===activeCell)?0:-1;el.setAttribute('role','gridcell');el.setAttribute('aria-label',`Row ${r+1}, column ${c+1}`);const fixed=state.board[r][c],pending=tileAt(r,c),bonus=PREMIUM[r][c];if(bonus)el.classList.add('premium-'+bonus);if(r===7&&c===7)el.classList.add('center');if(fixed){el.classList.add('occupied');el.append(block({...fixed.tile,flipped:!!fixed.flipped},'',fixed.as));el.setAttribute('aria-label',`Row ${r+1}, column ${c+1}, ${fixed.as}, ${fixed.points ?? fixed.tile.points} points${fixed.flipped?', alternate face':''}`);}else if(pending){el.classList.add('occupied');const tile=state.racks[state.turn].find(t=>t.id===pending.tileId);if(tile)el.append(block(tile,'placed'+(dropTile===tile.id?' is-dropping':''),pending.as||tileFace(tile)));el.setAttribute('aria-label',`Pending ${tile?tileFace(tile):''} at row ${r+1}, column ${c+1}; tap to recall`);}else if(bonus){const b=document.createElement('span');b.className='bonus';b.textContent=r===7&&c===7?'★':bonus;el.append(b);}el.addEventListener('click',()=>{if(performance.now()-lastTileDropAt<300)return;tapSquare(r,c);});if(pending)el.addEventListener('pointerdown',event=>startTileDrag(event,pending.tileId,'board'));board.append(el);}
+  const board=$('board');const hadBoardFocus=board.contains(document.activeElement);board.replaceChildren();for(let r=0;r<SIZE;r++)for(let c=0;c<SIZE;c++){const el=document.createElement('button');el.type='button';el.className='sq';el.tabIndex=(r*SIZE+c===activeCell)?0:-1;el.setAttribute('role','gridcell');el.setAttribute('aria-label',`Row ${r+1}, column ${c+1}`);const fixed=state.board[r][c],pending=tileAt(r,c),bonus=PREMIUM[r][c];if(bonus)el.classList.add('premium-'+bonus);if(r===7&&c===7)el.classList.add('center');if(fixed){el.classList.add('occupied');el.append(block({...fixed.tile,flipped:!!fixed.flipped},'',fixed.as));el.setAttribute('aria-label',`Row ${r+1}, column ${c+1}, ${fixed.as}, ${fixed.points ?? fixed.tile.points} points${fixed.flipped?', alternate face':''}`);}else if(pending){el.classList.add('occupied');const tile=state.racks[state.turn].find(t=>t.id===pending.tileId);if(tile)el.append(block(tile,'placed'+(dropTile===tile.id?' is-dropping':''),pending.as||tileFace(tile)));el.setAttribute('aria-label',`Pending ${tile?tileFace(tile):''} at row ${r+1}, column ${c+1}; tap to recall`);}else if(bonus){const b=document.createElement('span');b.className='bonus';b.textContent=r===7&&c===7?'★':bonus;el.append(b);}if(cursorTarget?.row===r&&cursorTarget.col===c&&!fixed&&!pending){
+    el.classList.add('active-cursor',placementDirection==='vertical'?'dir-vertical':'dir-horizontal');
+    const marker=document.createElement('span');marker.className='cursor-arrow';marker.setAttribute('aria-hidden','true');
+    marker.innerHTML=placementDirection==='vertical'
+      ?'<svg viewBox="0 0 24 24" focusable="false"><path d="M12 3v17m-6-6 6 6 6-6"/></svg>'
+      :'<svg viewBox="0 0 24 24" focusable="false"><path d="M3 12h17m-6-6 6 6-6 6"/></svg>';
+    el.append(marker);
+    el.setAttribute('aria-label',el.getAttribute('aria-label')+', active '+(placementDirection==='vertical'?'down':'across')+' placement cursor, tap again to change direction');
+  }
+  el.addEventListener('click',()=>{if(performance.now()-lastTileDropAt<300)return;tapSquare(r,c);});if(pending)el.addEventListener('pointerdown',event=>startTileDrag(event,pending.tileId,'board'));board.append(el);}
   if(hadBoardFocus)board.children[activeCell]?.focus({preventScroll:true});
-  const rack=$('rack');rack.replaceChildren();for(const tile of state.racks[state.turn]){if(draft.some(p=>p.tileId===tile.id))continue;const b=block(tile,selected===tile.id?'selected':'');b.dataset.tileId=tile.id;b.addEventListener('pointerdown',event=>startTileDrag(event,tile.id,'rack'));if(flipTile===tile.id)b.classList.add('is-flipping');if(shuffleMotion){b.classList.add('is-shuffling');b.style.setProperty('--tile-index',rack.children.length);}b.setAttribute('role','button');b.setAttribute('tabindex','0');b.setAttribute('aria-label',`${tile.blank?'Blank':tileFace(tile)}, ${tileValue(tile)} points${tile.flipped?', flipped alternate face':''}${selected===tile.id?', selected':''}`);const choose=()=>{haptic('tap');const now=performance.now();const repeat=!swapping&&lastRackTap&&lastRackTap.id===tile.id&&now-lastRackTap.at<400;lastRackTap={id:tile.id,at:now};if(repeat&&autoPlaceTile(tile.id))return;if(swapping){if(!swapIds.has(tile.id))swapIds.add(tile.id);else swapIds.delete(tile.id);say(`${swapIds.size} tile(s) selected to swap. Tap Swap again to confirm.`);}else{selected=selected===tile.id?null:tile.id;say(selected?'Tap a board square to place your letter.':'Select a letter to place.');}render();};b.addEventListener('click',()=>{if(performance.now()-lastTileDropAt<300)return;choose();});b.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();choose();}});if(swapIds.has(tile.id))b.classList.add('selected');rack.append(b);}
+  const rack=$('rack');rack.replaceChildren();for(const tile of state.racks[state.turn]){if(draft.some(p=>p.tileId===tile.id))continue;const b=block(tile,selected===tile.id?'selected':'');b.dataset.tileId=tile.id;b.addEventListener('pointerdown',event=>startTileDrag(event,tile.id,'rack'));if(flipTile===tile.id)b.classList.add('is-flipping');if(shuffleMotion){b.classList.add('is-shuffling');b.style.setProperty('--tile-index',rack.children.length);}b.setAttribute('role','button');b.setAttribute('tabindex','0');b.setAttribute('aria-label',`${tile.blank?'Blank':tileFace(tile)}, ${tileValue(tile)} points${tile.flipped?', flipped alternate face':''}${selected===tile.id?', selected':''}`);const choose=()=>{haptic('tap');const now=performance.now();const repeat=!swapping&&lastRackTap&&lastRackTap.id===tile.id&&now-lastRackTap.at<400;lastRackTap={id:tile.id,at:now};if(repeat&&autoPlaceTile(tile.id))return;if(swapping){if(!swapIds.has(tile.id))swapIds.add(tile.id);else swapIds.delete(tile.id);say(`${swapIds.size} tile(s) selected to swap. Tap Swap again to confirm.`);}else{
+    selected=selected===tile.id?null:tile.id;
+    if(selected!==null&&cursorTarget){
+      const target=cursorTarget;
+      if(!state.board[target.row][target.col]&&!tileAt(target.row,target.col)){
+        tapSquare(target.row,target.col);
+        return;
+      }
+    }
+    say(selected?'Tap a board square to place your letter.':'Select a letter to place.');
+  }render();};b.addEventListener('click',()=>{if(performance.now()-lastTileDropAt<300)return;choose();});b.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();choose();}});if(swapIds.has(tile.id))b.classList.add('selected');rack.append(b);}
   $('history').replaceChildren();const items=state.history.slice(-8).reverse();if(!items.length){const li=document.createElement('li');li.textContent='No moves yet. The board is yours!';$('history').append(li);}for(const m of items){const li=document.createElement('li');li.textContent=`P${m.player+1} ${m.kind==='play'?`${m.words.join(' + ')} · +${m.score}`:m.kind}`;$('history').append(li);}
   $('play').disabled=state.finished;$('pass').disabled=state.finished;$('swap').disabled=state.finished;draftPreview();dropTile=null;flipTile=null;shuffleMotion=false;}
 let swapIds=new Set();
@@ -253,7 +298,9 @@ function placeSelected(row,col,as){
   const tile=state.racks[state.turn].find(t=>t.id===selected);
   if(!tile)return;
   draft.push({row,col,tileId:selected,flipped:!!tile.flipped,...(as?{as}:{})});
-  dropTile=selected;selected=null;persist();render();haptic('drop');say(`${draft.length} letter(s) placed. Select another or press Play word.`);
+  dropTile=selected;selected=null;
+  if(cursorTarget?.row===row&&cursorTarget.col===col)cursorTarget=cursorAdvance(row,col);
+  persist();render();haptic('drop');say(`${draft.length} letter(s) placed. Select another or press Play word.`);
 }
 let pendingBlank=null;
 function clearPendingBlank(){pendingBlank=null;selected=null;render();}
@@ -281,7 +328,17 @@ function tapSquare(row,col){
   const existing=tileAt(row,col);
   if(existing){draft=draft.filter(p=>p!==existing);selected=existing.tileId;persist();say('Letter recalled. Select its new square.');render();return;}
   if(state.board[row][col])return;
-  if(selected===null){say('Choose a letter from your rack first.');return;}
+  if(selected===null){
+    if(cursorTarget?.row===row&&cursorTarget.col===col){
+      setPlacementDirection(placementDirection==='horizontal'?'vertical':'horizontal');
+    }else{
+      cursorTarget={row,col};
+      setPlacementDirection('horizontal');
+      render();
+    }
+    say('Placement cursor at row '+(row+1)+', column '+(col+1)+'. Tap again to switch Across/Down, then tap letters from the rack.');
+    return;
+  }
   const tile=state.racks[state.turn].find(t=>t.id===selected);if(!tile)return;
   if(tile.blank){pendingBlank={row,col};$('blank-letter').value='A';$('blank-picker').showModal();$('blank-letter').focus();return;}
   placeSelected(row,col);
