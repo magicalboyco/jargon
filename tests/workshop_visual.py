@@ -39,6 +39,28 @@ with sync_playwright() as p:
             assert not errors,errors
             print(f"PASS {width}x{height} {theme}: full board, rack, controls, no overflow")
         ctx.close()
+    # Short iPhone in-app browsers may expose much less CSS viewport height than Safari.
+    # The BOARD MUST retain viewport width; scrolling down to controls is preferable
+    # to collapsing the game into a 70px strip. Test both themes and fresh viewport.
+    for width,height in ((320,480),(375,500),(390,530),(430,550),(600,550)):
+        ctx=browser.new_context(viewport={"width":width,"height":height},is_mobile=True,has_touch=True)
+        page=ctx.new_page()
+        errors=[]
+        page.on("pageerror",lambda e:errors.append(str(e)))
+        page.set_content(HTML)
+        metrics=page.evaluate("""() => {
+          const game=document.querySelector('.game').getBoundingClientRect();
+          const board=document.querySelector('#board').getBoundingClientRect();
+          const grid=document.querySelector('.game-layout').getBoundingClientRect();
+          return {gameWidth:game.width,boardWidth:board.width,gridWidth:grid.width,
+            scroll:document.documentElement.scrollWidth,viewport:innerWidth};
+        }""")
+        assert metrics["gameWidth"]>=min(width-35,320),metrics
+        assert metrics["boardWidth"]>=min(width-50,300),metrics
+        assert metrics["scroll"]<=width,metrics
+        assert not errors,errors
+        print(f"PASS short viewport {width}x{height}: game uses full playable board width")
+        ctx.close()
     ctx=browser.new_context(reduced_motion="reduce")
     page=ctx.new_page()
     page.set_content(HTML)

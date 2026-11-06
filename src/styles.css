@@ -300,7 +300,8 @@ dialog button { min-height: 44px; }
   .game-layout { grid-template-columns: minmax(0,1fr); justify-items: center; }
   .sidebar { display: none; }
   .intro { display: none; }
-  .game { width: 100%; max-width: min(720px, calc(100dvh - 435px)); }
+  /* Never use viewport HEIGHT as a hard width cap on phones: short in-app browsers collapse the board. */
+  .game { width: 100%; max-width: min(720px, 100%); }
 }
 @media (max-width: 520px) {
   .shell { padding-top: max(6px, env(safe-area-inset-top)); }
@@ -312,7 +313,8 @@ dialog button { min-height: 44px; }
   .mode-picker { font-size: 9px; gap: 5px; }
   .mode-picker select { min-height: 32px; max-width: 170px; font-size: 11px; padding-left: 6px; }
   .mode-note { display: none; }
-  .game { max-width: 100%; }
+  .game-layout { width: 100%; min-width: 0; }
+  .game { width: 100%; min-width: 0; max-width: 100%; }
   .scorebar { padding: 6px; gap: 5px; }
   .player { min-height: 48px; }
   .player strong { font-size: 23px; }
@@ -341,7 +343,8 @@ dialog button { min-height: 44px; }
   .preview-lock-icon { width: 34px; height: 34px; border-width: 4px; font-size: 21px; }
 }
 @media (min-width:521px) and (max-width:1000px) {
-  .game { max-width: min(720px, calc(100dvh - 493px)); }
+  /* Tablets may fit board and controls in one screen, but never shrink below a playable size. */
+  .game { max-width: min(720px, max(320px, calc(100dvh - 493px))); }
 }
 
 .score-pop { position:absolute;z-index:11;pointer-events:none;padding:4px 11px;border-radius:30px;background:#176171;color:#fffdf2;font:900 clamp(16px,4vw,24px)/1.2 var(--display);box-shadow:0 5px 12px #26180e50;transform:translate(-50%,-50%); }
