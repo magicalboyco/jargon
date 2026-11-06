@@ -60,7 +60,9 @@ with sync_playwright() as p:
           setPlacementDirection('vertical');render();
           return {tileIds:state.racks[0].map(t=>t.id)};
         }""")
-        page.locator("#board .sq").nth(128).click()  # (8,8)
+        page.locator("#board .sq").nth(128).click()  # Select (8,8), default Across.
+        page.locator("#board .sq").nth(128).click()  # Toggle same cell to Down.
+        assert page.evaluate("placementDirection==='vertical'")
         page.locator("#rack .block").first.click()   # E at (8,8)
         page.locator("#rack .block").first.click()   # N at (9,8)
         outcome = page.evaluate("""() => {

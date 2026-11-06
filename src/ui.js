@@ -32,7 +32,9 @@ function validDraft(value,game){
   return value;
 }
 let theme=safeStorage.get(THEME)||'sophisticated',draft=validDraft(saved?.draft,state),selected=null,swapping=false;
-function persist(){safeStorage.set(STORE,JSON.stringify({version:2,game:state,draft}));}
+let opponentMode=saved?.opponent==='computer'?'computer':'local';
+let botScheduled=false,botToken=0;
+function persist(){safeStorage.set(STORE,JSON.stringify({version:2,game:state,draft,opponent:opponentMode}));}
 function say(message){$('hint').textContent=message;}
 
 const HAPTICS_KEY='jargon.haptics.v1';
@@ -264,11 +266,13 @@ function render(){
   document.body.classList.toggle('playful',theme==='playful');
   document.body.classList.toggle('blocks-mode',state.mode==='blocks');
   $('game-mode').value=state.mode;
+  $('opponent-mode').value=opponentMode;
+  document.body.classList.toggle('bot-turn',opponentMode==='computer'&&state.turn===1);
   const canFlip=state.mode==='blocks'&&!swapping&&selected!==null&&state.racks[state.turn].some(t=>t.id===selected&&t.alternate&&!t.blank);
   const flipBtn=$('flip');flipBtn.hidden=state.mode!=='blocks';flipBtn.disabled=!canFlip||state.finished;
   flipBtn.setAttribute('aria-label',canFlip?'Flip selected letter to its alternate face':'Select a nonblank rack tile to flip');
   $('flip-explain').textContent=state.mode==='blocks'?'Block Flip: select a tile, then tap ↻ Flip to switch its letter. Flipped points halve (minimum 1). Recall any staged tile to flip it.':'Classic: no flips. Select a non-blank rack tile to create a word. Remember to cover the center square on the opening move.';
-$('theme').lastElementChild.textContent=theme==='playful'?'Playful':'Sophisticated';$('score0').textContent=state.scores[0];$('score1').textContent=state.scores[1];$('player0').classList.toggle('active',state.turn===0);$('player1').classList.toggle('active',state.turn===1);$('turn-label').textContent=state.finished?`Game over · ${state.winner==='tie'?'Tie':`Player ${state.winner+1} wins`}`:`Player ${state.turn+1}'s turn`;$('bag-count').textContent=`${state.bag.length} letters left`;
+$('theme').lastElementChild.textContent=theme==='playful'?'Playful':'Sophisticated';$('score0').textContent=state.scores[0];$('score1').textContent=state.scores[1];$('player0').classList.toggle('active',state.turn===0);$('player1').classList.toggle('active',state.turn===1);$('turn-label').textContent=state.finished?`Game over · ${state.winner==='tie'?'Tie':`Player ${state.winner+1} wins`}`:opponentMode==='computer'?(state.turn===0?'Your turn':'Computer’s turn'):`Player ${state.turn+1}'s turn`;$('bag-count').textContent=`${state.bag.length} letters left`;
   const board=$('board');const hadBoardFocus=board.contains(document.activeElement);board.replaceChildren();for(let r=0;r<SIZE;r++)for(let c=0;c<SIZE;c++){const el=document.createElement('button');el.type='button';el.className='sq';el.tabIndex=(r*SIZE+c===activeCell)?0:-1;el.setAttribute('role','gridcell');el.setAttribute('aria-label',`Row ${r+1}, column ${c+1}`);const fixed=state.board[r][c],pending=tileAt(r,c),bonus=PREMIUM[r][c];if(bonus)el.classList.add('premium-'+bonus);if(r===7&&c===7)el.classList.add('center');if(fixed){el.classList.add('occupied');el.append(block({...fixed.tile,flipped:!!fixed.flipped},'',fixed.as));el.setAttribute('aria-label',`Row ${r+1}, column ${c+1}, ${fixed.as}, ${fixed.points ?? fixed.tile.points} points${fixed.flipped?', alternate face':''}`);}else if(pending){el.classList.add('occupied');const tile=state.racks[state.turn].find(t=>t.id===pending.tileId);if(tile)el.append(block(tile,'placed'+(dropTile===tile.id?' is-dropping':''),pending.as||tileFace(tile)));el.setAttribute('aria-label',`Pending ${tile?tileFace(tile):''} at row ${r+1}, column ${c+1}; tap to recall`);}else if(bonus){const b=document.createElement('span');b.className='bonus';b.textContent=r===7&&c===7?'★':bonus;el.append(b);}if(cursorTarget?.row===r&&cursorTarget.col===c&&!fixed&&!pending){
     el.classList.add('active-cursor',placementDirection==='vertical'?'dir-vertical':'dir-horizontal');
     const marker=document.createElement('span');marker.className='cursor-arrow';marker.setAttribute('aria-hidden','true');
@@ -292,7 +296,9 @@ $('theme').lastElementChild.textContent=theme==='playful'?'Playful':'Sophisticat
     say(selected?'Tap a board square to place your letter.':'Select a letter to place.');
   }render();};b.addEventListener('click',()=>{if(performance.now()-lastTileDropAt<300)return;choose();});b.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();choose();}});if(swapIds.has(tile.id))b.classList.add('selected');rack.append(b);}
   $('history').replaceChildren();const items=state.history.slice(-8).reverse();if(!items.length){const li=document.createElement('li');li.textContent='No moves yet. The board is yours!';$('history').append(li);}for(const m of items){const li=document.createElement('li');li.textContent=`P${m.player+1} ${m.kind==='play'?`${m.words.join(' + ')} · +${m.score}`:m.kind}`;$('history').append(li);}
-  $('play').disabled=state.finished;$('pass').disabled=state.finished;$('swap').disabled=state.finished;draftPreview();dropTile=null;flipTile=null;shuffleMotion=false;}
+  $('player1').querySelector('.player-label').textContent=opponentMode==='computer'?'COMPUTER':'PLAYER TWO';
+  $('player0').querySelector('.player-label').textContent=opponentMode==='computer'?'YOU':'PLAYER ONE';
+  $('play').disabled=state.finished||(opponentMode==='computer'&&state.turn===1);$('pass').disabled=state.finished||(opponentMode==='computer'&&state.turn===1);$('swap').disabled=state.finished||(opponentMode==='computer'&&state.turn===1);draftPreview();dropTile=null;flipTile=null;shuffleMotion=false;}
 let swapIds=new Set();
 function placeSelected(row,col,as){
   const tile=state.racks[state.turn].find(t=>t.id===selected);
@@ -343,9 +349,50 @@ function tapSquare(row,col){
   if(tile.blank){pendingBlank={row,col};$('blank-letter').value='A';$('blank-picker').showModal();$('blank-letter').focus();return;}
   placeSelected(row,col);
 }
-function commit(move){lastRackTap=null;try{const result=play(state,move,w=>validWord(w,state.dictionaryVersion||'starter-demo-1'));state=result.state;draft=[];selected=null;swapping=false;swapIds.clear();cursorTarget=null;
-  if(!state.finished)document.body.classList.add('handoff-lock');
-  persist();render();if(move.kind==='play'&&result.score>0){const last=move.placements[move.placements.length-1];pendingScore={points:result.score,row:last.row,col:last.col};haptic('success');}if(move.kind==='play')say(`Played ${result.words.map(x=>x.word).join(' + ')} for ${result.score} points!`);else say(`${move.kind} completed.`);if(!state.finished)showDialog('Pass the device','This is a two-person game on one device. Hand it to Player '+(state.turn+1)+', then they should tap Ready to reveal their letters. There is no computer or online opponent in this alpha.');else showDialog('Game over',state.winner==='tie'?'It’s a tie!':`Player ${state.winner+1} wins. Final scores: ${state.scores.join(' – ')}.`);}catch(e){haptic('error');say(e.message);}}
+function botFinishedMessage(){return state.winner==='tie'?'It’s a tie!':(state.winner===0?'You win!':'Computer wins.');}
+function scheduleBotTurn(){
+  if(botScheduled||opponentMode!=='computer'||state.finished||state.turn!==1)return;
+  botScheduled=true;
+  const token=++botToken;
+  $('turn-label').textContent='Computer is thinking…';
+  // Yield once for paint. Candidate search is bounded, but a Web Worker is a future improvement.
+  setTimeout(()=>{
+    if(token!==botToken||opponentMode!=='computer'||state.turn!==1||state.finished){botScheduled=false;return;}
+    try {
+      const check=word=>validWord(word,state.dictionaryVersion||'starter-demo-1');
+      const move=findBotMove(state,check,{difficulty:'beginner',seed:(state.history.length+1)*7919,maxTimeMs:170,maxEvaluations:1800});
+      const result=play(state,move,check,()=>0.5);
+      state=result.state;
+      draft=[];selected=null;swapping=false;swapIds.clear();cursorTarget=null;
+      persist();render();
+      if(move.kind==='play')say('Computer played '+result.words.map(w=>w.word).join(' + ')+' for '+result.score+' points. Your turn.');
+      else say('Computer passed. Your turn.');
+      if(state.finished)showDialog('Game over',botFinishedMessage()+' Final scores: '+state.scores.join(' – ')+'.');
+    }catch(error){
+      say('Computer move failed: '+error.message+'. You can change opponent mode to restart.');
+    }finally{botScheduled=false;}
+  },80);
+}
+function commit(move){
+  if(opponentMode==='computer'&&state.turn===1)return;
+  lastRackTap=null;
+  try {
+    const result=play(state,move,w=>validWord(w,state.dictionaryVersion||'starter-demo-1'));
+    state=result.state;draft=[];selected=null;swapping=false;swapIds.clear();cursorTarget=null;
+    if(!state.finished&&opponentMode==='local')document.body.classList.add('handoff-lock');
+    persist();render();
+    if(move.kind==='play'&&result.score>0){
+      const last=move.placements[move.placements.length-1];
+      if(opponentMode==='local')pendingScore={points:result.score,row:last.row,col:last.col};
+      haptic('success');
+    }
+    if(move.kind==='play')say('Played '+result.words.map(w=>w.word).join(' + ')+' for '+result.score+' points!');
+    else say(move.kind+' completed.');
+    if(!state.finished&&opponentMode==='computer')scheduleBotTurn();
+    else if(!state.finished)showDialog('Pass the device','This is a two-person game on one device. Hand it to Player '+(state.turn+1)+', then they should tap Ready to reveal their letters. There is no online opponent in this mode.');
+    else showDialog('Game over',opponentMode==='computer'?botFinishedMessage()+' Final scores: '+state.scores.join(' – ')+'.':(state.winner==='tie'?'It’s a tie!':`Player ${state.winner+1} wins. Final scores: ${state.scores.join(' – ')}.`));
+  }catch(error){haptic('error');say(error.message);}
+}
 function showDialog(title,message){$('dialog-title').textContent=title;$('dialog-message').textContent=message;$('dialog-close').textContent=title==='Pass the device'?'Player '+(state.turn+1)+' — Ready to play':'Ready to play';$('haptics-row').hidden=title!=='How to play';$('haptics-setting').checked=hapticsEnabled;$('haptics-setting').disabled=typeof navigator.vibrate!=='function';$('dialog').showModal();}
 $('haptics-setting').addEventListener('change',e=>{hapticsEnabled=!!e.target.checked;safeStorage.set(HAPTICS_KEY,hapticsEnabled?'on':'off');});
 $('dialog').addEventListener('close',()=>{document.body.classList.remove('handoff-lock');if(pendingScore){const result=pendingScore;pendingScore=null;scoreBurst(result.points,result.row,result.col);}});
@@ -361,18 +408,30 @@ $('flip').addEventListener('click',()=>{
   flipTile=tile.id;persist();render();haptic('flip');
   say(`${tile.letter} ${tile.flipped?'flipped to '+tile.alternate:'returned to '+tile.letter} · ${tileValue(tile)} point${tileValue(tile)===1?'':'s'}.`);
 });
+$('opponent-mode').addEventListener('change',event=>{
+  const mode=event.target.value;
+  if(!['local','computer'].includes(mode)||mode===opponentMode)return;
+  if(!confirm('Start a new '+(mode==='computer'?'Play Computer':'Pass-and-play')+' game? Save your current game with Export first if you want to keep it.')){
+    event.target.value=opponentMode;return;
+  }
+  botToken++;botScheduled=false;document.body.classList.remove('handoff-lock');
+  opponentMode=mode;state=createGame(Math.random,DICTIONARY_VERSION,state.mode);
+  draft=[];selected=null;cursorTarget=null;swapping=false;swapIds.clear();
+  persist();render();
+  say(mode==='computer'?'Playing against the computer. Place a word and tap Play word.':'Two humans sharing one device. Pass it to the next player after submitting.');
+});
 $('game-mode').addEventListener('change',e=>{
   const mode=e.target.value;
   if(!(mode in MODES)||mode===state.mode)return;
   if(!confirm('Start a NEW '+MODES[mode]+' game? The current game will be replaced. Export it first if you want to keep it.')){e.target.value=state.mode;return;}
-  state=createGame(Math.random,DICTIONARY_VERSION,mode);
-  draft=[];selected=null;swapping=false;swapIds.clear();persist();render();
+  botToken++;botScheduled=false;state=createGame(Math.random,DICTIONARY_VERSION,mode);
+  draft=[];selected=null;cursorTarget=null;swapping=false;swapIds.clear();persist();render();
   say(mode==='blocks'?'Block Flip started: select a block, then tap ↻ Flip to use its alternate letter.':'Classic game started: no flipped letters.');
 });
 $('shuffle').addEventListener('click',()=>{state.racks[state.turn]=shuffled(state.racks[state.turn],Math.random);shuffleMotion=true;persist();render();haptic('tap');});
 $('theme').addEventListener('click',()=>{theme=theme==='playful'?'sophisticated':'playful';safeStorage.set(THEME,theme);render();});
 $('rules').addEventListener('click',()=>showDialog('How to play',`Classic uses familiar 7-tile word-game rules. Block Flip uses 104 dual-face blocks: select a rack tile and tap Flip to change its alternate face. Use only legal words from the local dictionary.`));
-$('reset').addEventListener('click',()=>{if(!confirm('Delete the current local game permanently and start fresh?'))return;safeStorage.remove(STORE);state=createGame(Math.random,DICTIONARY_VERSION,state.mode);draft=[];selected=null;swapIds.clear();persist();render();say('A fresh game is ready.');});
+$('reset').addEventListener('click',()=>{if(!confirm('Delete the current local game permanently and start fresh?'))return;botToken++;botScheduled=false;safeStorage.remove(STORE);state=createGame(Math.random,DICTIONARY_VERSION,state.mode);draft=[];selected=null;cursorTarget=null;swapIds.clear();persist();render();say('A fresh game is ready.');});
 $('import').addEventListener('click',()=>$('import-file').click());
 $('import-file').addEventListener('change',async e=>{
   const f=e.target.files?.[0];if(!f)return;
@@ -384,10 +443,10 @@ $('import-file').addEventListener('change',async e=>{
      !Array.isArray(game.scores)||game.scores.length!==2||!['classic','blocks'].includes(game.mode||'classic')||
      !Number.isInteger(game.turn)||game.turn<0||game.turn>1||!Array.isArray(game.history))throw new Error('Invalid Jargon save format');
    if(!confirm('Replace your current game with this imported save?'))return;
-   state=game;state.mode||='classic';draft=validDraft(obj.draft,state);selected=null;swapping=false;swapIds.clear();persist();render();
+   botToken++;botScheduled=false;state=game;state.mode||='classic';opponentMode=obj.opponent==='computer'?'computer':'local';draft=validDraft(obj.draft,state);selected=null;cursorTarget=null;swapping=false;swapIds.clear();persist();render();if(opponentMode==='computer'&&state.turn===1)scheduleBotTurn();
    say('Game imported locally. Your save never left this device.');
   }catch(error){say('Import failed: '+error.message);}finally{e.target.value='';}
 });
-$('export').addEventListener('click',()=>{const json=JSON.stringify({version:2,exportedAt:new Date().toISOString(),game:state,draft},null,2);const url=URL.createObjectURL(new Blob([json],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='jargon-save.json';a.click();URL.revokeObjectURL(url);say('Game exported as JSON.');});
-render();document.body.classList.add('js-ready');say('Select a tile, then tap the board to place it.');
+$('export').addEventListener('click',()=>{const json=JSON.stringify({version:2,exportedAt:new Date().toISOString(),game:state,draft,opponent:opponentMode},null,2);const url=URL.createObjectURL(new Blob([json],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='jargon-save.json';a.click();URL.revokeObjectURL(url);say('Game exported as JSON.');});
+render();document.body.classList.add('js-ready');say(opponentMode==='computer'?'Play against the computer: place your first word.':'Select a tile, then tap the board to place it.');if(opponentMode==='computer'&&state.turn===1)scheduleBotTurn();
 if(!safeStorage.set('__jargon_storage_check','1'))say('You can play here, but this file viewer may not save progress. For reliable saving, open Jargon in Safari.');else safeStorage.remove('__jargon_storage_check');

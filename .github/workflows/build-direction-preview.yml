@@ -2,7 +2,7 @@ name: Rebuild Jargon direction preview
 on:
   push:
     branches:
-      - feature/mobile-turn-flow-qa
+      - feature/offline-bot-engine
 permissions:
   contents: write
 jobs:
@@ -25,5 +25,5 @@ jobs:
           git add index.html
           if ! git diff --cached --quiet; then
             git commit -m "build: regenerate direction-aware game [skip ci]"
-            git push origin HEAD:feature/mobile-turn-flow-qa
+            git push origin HEAD:feature/offline-bot-engine
           fi

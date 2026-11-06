@@ -434,3 +434,17 @@ body.playful #board .sq.drag-target {outline-color:var(--blue);}
 /* During pass-and-play handoff, conceal the incoming player's rack until Ready. */
 body.handoff-lock #rack .block {visibility:hidden;}
 body.handoff-lock .rack-area {filter:none;}
+
+/* Computer mode: do not reveal the bot rack or accept tile interactions during its turn. */
+body.bot-turn #rack .block{visibility:hidden;pointer-events:none;}
+body.bot-turn #board .sq{pointer-events:none;}
+body.bot-turn #shuffle,body.bot-turn #flip{pointer-events:none;opacity:.5;}
+.mode-strip{gap:8px;flex-wrap:wrap;}
+@media(max-width:520px){.mode-strip{display:flex;justify-content:space-between;gap:5px;}.mode-strip .mode-picker{min-width:0;font-size:8px;gap:3px;}.mode-strip select{max-width:min(35vw,170px);font-size:10px;}}
+
+/* Keep the two rules/opponent selectors on one row even at 320px; accessible names stay on selects. */
+@media(max-width:520px){
+  .mode-strip{flex-wrap:nowrap;min-height:36px;}
+  .mode-strip .mode-picker{flex:1 1 0;min-width:0;font-size:0;gap:0;}
+  .mode-strip .mode-picker select{width:100%;max-width:100%;min-width:0;font-size:11px;}
+}

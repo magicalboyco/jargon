@@ -61,7 +61,7 @@ with sync_playwright() as p:
           state=createGame(()=>0.5,'starter-demo-1','classic');
           const bag=fullBag('classic');
           state.racks[0]=[bag.find(t=>t.letter==='A'),bag.find(t=>t.letter==='T'),...bag.filter(t=>t.letter==='E').slice(0,5)];
-          draft=[];selected=null;render();
+          draft=[];selected=null;lastRackTap=null;lastTileDropAt=-1000;cursorTarget=null;setPlacementDirection('horizontal');render();
         }""")
         # Two taps in the same turn on the same tile auto-place only in a safe opening square.
         page.locator("#rack .block").first.click()

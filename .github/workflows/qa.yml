@@ -2,7 +2,7 @@ name: Jargon alpha checks
 on:
   pull_request:
   push:
-    branches: [main, feature/explicit-word-direction, feature/tile-drag-to-board, feature/drag-qa-cursor, feature/mobile-turn-flow-qa]
+    branches: [main, feature/explicit-word-direction, feature/tile-drag-to-board, feature/drag-qa-cursor, feature/mobile-turn-flow-qa, feature/offline-bot-engine]
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -20,7 +20,8 @@ jobs:
           python -m playwright install --with-deps chromium
       - name: Rebuild standalone game
         run: python tools/build.py
-      - name: Ensure generated build was committed
+      - name: Ensure release build was committed
+        if: github.ref == 'refs/heads/main' || github.base_ref == 'main'
         run: git diff --exit-code -- index.html
       - name: Check JavaScript syntax
         run: |
@@ -57,3 +58,9 @@ jobs:
 
       - name: Direction cursor and crosswords
         run: python tests/drag_direction_smoke.py
+
+      - name: Offline bot engine legality and determinism
+        run: node tests/bot.test.cjs
+
+      - name: Offline opponent browser end-to-end
+        run: python tests/bot_ui_smoke.py
