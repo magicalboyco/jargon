@@ -48,3 +48,6 @@ jobs:
           name: jargon-pr9-typography-screenshots
           path: artifacts/typography/*.png
           if-no-files-found: warn
+
+      - name: Tactile action effects and reduced-motion behavior
+        run: python tests/tactile_smoke.py
