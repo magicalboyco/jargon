@@ -1,0 +1,35 @@
+name: Jargon alpha checks
+on:
+  pull_request:
+  push:
+    branches: [main]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Set up browser tests
+        run: |
+          python -m pip install playwright
+          python -m playwright install --with-deps chromium
+      - name: Rebuild standalone game
+        run: python tools/build.py
+      - name: Ensure generated build was committed
+        run: git diff --exit-code -- index.html
+      - name: Check JavaScript syntax
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from re import search, S
+          source=Path('index.html').read_text()
+          Path('check.js').write_text(search(r'<script>(.*?)</script>',source,S).group(1))
+          PY
+          node --check check.js
+      - name: Browser regressions
+        run: python tests/regression.py
