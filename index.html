@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#f6eddf"><meta name="description" content="Jargon — your words, your game, your privacy."><title>Jargon — Privacy-first word game</title><style>:root{--ink:#292822;--muted:#796b5e;--cream:#f8f0e2;--paper:#fffbf3;--wood:#e9cc9b;--red:#cc4a35;--blue:#236b87;--green:#457b57;--yellow:#e6b441;--shadow:0 3px 0 #cba773,0 6px 12px #4a332318;--tile-letter:#3a3026}*{box-sizing:border-box}body{margin:0;background:var(--cream);color:var(--ink);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif}button{font:inherit;cursor:pointer}button:focus-visible,[role=gridcell]:focus-visible{outline:3px solid #1d5e8c;outline-offset:3px}.shell{max-width:1240px;margin:auto;padding:24px clamp(12px,3vw,40px)}.top{display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #dfd0b8;padding:0 0 17px}.eyebrow,.panel-kicker,.rack-heading,.player-label{font-size:11px;font-weight:800;letter-spacing:.15em;color:var(--muted)}h1,h2,h3{font-family:'Cooper Black','Rockwell Extra Bold',Georgia,serif;letter-spacing:-.04em}h1{font-size:clamp(36px,5vw,60px);margin:0;color:#8f391f;line-height:1.05}.logo-dot{color:var(--yellow)}.top-actions{display:flex;gap:10px;align-items:center}.icon-button{border:1px solid #decdb4;background:#fff8ed;color:#51463a;border-radius:20px;padding:10px 13px;font-size:13px;font-weight:750}.intro{padding:25px 0 21px;display:flex;align-items:end;justify-content:space-between;gap:15px}.intro h2{font-size:clamp(24px,3vw,35px);line-height:1.15;margin:0 0 6px}.intro em{color:var(--red);font-style:normal}.intro p{margin:0;color:var(--muted);font-size:14px}.alpha-pill{font-size:10px;letter-spacing:.12em;font-weight:900;color:#6d5634;background:#f2e2c8;border-radius:40px;padding:10px 14px;white-space:nowrap}.game-layout{display:grid;grid-template-columns:minmax(0,740px) minmax(220px,1fr);gap:25px;align-items:start}.game{border:1px solid #ddceb7;border-radius:16px;overflow:hidden;background:#fffaf1;box-shadow:0 12px 35px #5f421412}.scorebar{display:grid;grid-template-columns:1fr 1.3fr 1fr;align-items:center;padding:14px;gap:8px}.player{padding:11px 12px;display:flex;flex-direction:column;align-items:center;gap:2px;border-radius:11px;background:#f1e9db;opacity:.65}.player.active{opacity:1;background:#fff0d5;box-shadow:inset 0 0 0 2px #e4ba76}.player strong{font-size:27px}.turn-center{text-align:center;font-weight:850;font-size:14px}.turn-center small{display:block;color:var(--muted);font-weight:600;margin-top:6px}.board-wrap{padding:10px;background:#d7bd98}.board{width:100%;display:grid;grid-template-columns:repeat(15,minmax(0,1fr));aspect-ratio:1;gap:2px;background:#bb9770;padding:2px;border-radius:5px}.sq{position:relative;min-width:0;aspect-ratio:1;display:grid;place-items:center;padding:0;border:0;border-radius:2px;background:#f4e7d2;color:#a38d76}.sq::after{content:'';position:absolute;inset:0;pointer-events:none}.sq.premium-DL{background:#cde1e6;color:#426b7e}.sq.premium-TL{background:#79abb9;color:#fff}.sq.premium-DW{background:#eccac4;color:#8e493e}.sq.premium-TW{background:#c9745e;color:#fff}.sq .bonus{font-size:clamp(6px,.95vw,10px);font-weight:850;letter-spacing:-.03em}.sq.center .bonus{font-size:18px}.sq .block{width:100%;height:100%;min-width:0}.block{display:grid;place-items:center;position:relative;isolation:isolate;border-radius:4px;background:#e8cd9f;color:var(--tile-letter);font-family:'Cooper Black','Rockwell Extra Bold',Georgia,serif;font-weight:900;font-size:clamp(16px,3.4vw,36px);line-height:1;box-shadow:inset 1px 1px 1px #fff9e3,inset -1px -1px 1px #936d3a,var(--shadow);user-select:none}.block .face{display:grid;place-items:center;height:90%;width:90%;border-radius:3px;border:1px solid #bb9967;background:linear-gradient(130deg,#f7e7c8,#e8cc9e 65%,#eddbb5);text-shadow:0 1px #fffaef}.block .points{font:800 clamp(6px,.75vw,10px) ui-sans-serif,system-ui;position:absolute;bottom:5%;right:6%;color:#52483d}.block.selected{outline:3px solid var(--blue);outline-offset:1px;transform:translateY(-3px)}.block.placed{filter:brightness(1.03);outline:2px solid #598b58}.rack-area{padding:17px 22px 22px}.rack-heading{display:flex;justify-content:space-between;align-items:center}.text-button{color:var(--blue);background:none;border:none;font-weight:750;font-size:12px;padding:5px}.rack{margin:14px auto 12px;display:flex;justify-content:center;gap:7px;min-height:62px}.rack .block{width:min(12.6%,62px);aspect-ratio:1;cursor:pointer;flex-shrink:0}.hint{font-size:12px;color:#766959;text-align:center;min-height:24px}.controls{display:flex;gap:8px;margin-top:13px;flex-wrap:wrap}.controls button,.primary,.secondary{border-radius:10px;padding:12px 14px;font-size:13px;font-weight:850;border:none;min-height:44px}.controls button{flex:1}.primary{background:#286c63;color:white;box-shadow:0 3px 0 #1b4e47}.secondary{background:#f0e2cc;color:#544536}.sidebar{display:flex;flex-direction:column;gap:15px}.panel{background:#f2dfbd;border:1px solid #e1cda8;border-radius:13px;padding:24px 22px}.panel h3{font-size:clamp(28px,3vw,38px);line-height:1.05;margin:16px 0;color:#713724}.panel p{font-size:13px;line-height:1.65;color:#6d5a45}.blocks-deco{display:flex;gap:3px;flex-wrap:wrap;margin-top:23px}.blocks-deco span{display:grid;place-items:center;background:#f9e6c1;border:5px solid var(--red);width:43px;aspect-ratio:1;font-family:'Cooper Black',Georgia,serif;font-weight:900;font-size:25px;border-radius:5px;box-shadow:2px 3px 0 #aa8a63}.blocks-deco span:nth-child(4n+1){border-color:var(--blue)}.blocks-deco span:nth-child(4n+2){border-color:var(--red)}.blocks-deco span:nth-child(4n+3){border-color:var(--green)}.blocks-deco span:nth-child(4n){border-color:var(--yellow)}.panel.small{background:#fffbf3;padding:19px}.history{font-size:12px;color:#5b5146;padding-left:20px;line-height:1.85;max-height:170px;overflow:auto}.privacy{border-color:#bed6c9!important;background:#f0f8ef!important}.privacy strong{color:#2c654d}.privacy .text-button{display:block;padding-left:0}.danger{color:#a64032}footer{padding-top:21px;color:#8a7d69;font-size:11px;font-weight:700;display:flex;justify-content:space-between}dialog{border:none;border-radius:18px;padding:30px;max-width:350px;box-shadow:0 25px 60px #0006;background:var(--paper);color:var(--ink)}dialog::backdrop{background:#241d17aa}dialog h3{font-size:29px;margin:0 0 8px}dialog p{line-height:1.5;color:var(--muted)}dialog button{margin-top:10px;width:100%}body.playful .block{background:#a98255;border:3px solid #236b87;box-shadow:inset 0 1px 1px #fff5d4,3px 5px 0 #7c573b,3px 7px 8px #0002;border-radius:8px;color:#236b87}body.playful .block .face{border:0;background:#f8e9cc;border-radius:5px}body.playful .block[data-color="1"]{border-color:#c64435;color:#c64435}body.playful .block[data-color="2"]{border-color:#447a4f;color:#447a4f}body.playful .block[data-color="3"]{border-color:#dfa921;color:#a77714}body.playful .block .points{color:#544330}.sq .block{font-size:clamp(11px,2.9vw,31px)}body.playful .board{gap:3px}body.playful .sq{overflow:visible}@media(max-width:850px){.game-layout{grid-template-columns:1fr}.sidebar{display:grid;grid-template-columns:1fr 1fr}.sidebar .privacy{grid-column:1/-1}.board{gap:1px}.intro{align-items:start}.alpha-pill{display:none}}@media(max-width:520px){.shell{padding:13px 8px}.top{padding:0 4px 14px}.icon-button span{display:none}h1{font-size:38px}.intro{padding:19px 6px}.intro h2{font-size:25px}.game{border-radius:10px}.scorebar{padding:8px;grid-template-columns:1fr 1.25fr 1fr}.player{padding:6px 4px}.player strong{font-size:20px}.player-label{font-size:8px}.turn-center{font-size:11px}.turn-center small{font-size:9px}.board-wrap{padding:5px}.board{gap:1px;padding:1px}.sq .bonus{font-size:6px}.sq.center .bonus{font-size:12px}.sq .block{border-radius:1px;font-size:clamp(10px,3.1vw,17px)}.block .points{font-size:6px;bottom:0;right:1px}.rack-area{padding:12px}.rack{gap:4px}.rack .block{width:13%;font-size:25px}.controls{gap:5px}.controls button{padding:9px 5px;font-size:11px}.sidebar{grid-template-columns:1fr}.sidebar .privacy{grid-column:auto}.panel{padding:15px}footer{display:block}footer span{display:block;margin-top:8px}}@media(prefers-reduced-motion:no-preference){.block{transition:transform .14s ease,filter .14s ease}.controls button:active{transform:translateY(2px)}}
+
+/* JARGON MOBILE GAMEPLAY REDESIGN — board first, no marketing hero */
+:root{--cream:#e7edf2;--paper:#f7f9fa;--ink:#263746;--muted:#697984;--blue:#356e9d;--red:#c95d4b;--wood:#ebc987}
+body{background:#e7edf2;color:var(--ink)}
+.shell{max-width:980px;padding:12px 14px 20px}
+.top{background:#2d6c9f;color:white;border:0;border-radius:12px 12px 0 0;padding:11px 14px}
+.top .eyebrow{color:#d5e7f2;font-size:9px;letter-spacing:.16em}
+h1{font-size:28px;color:white;letter-spacing:-.055em}
+.logo-dot{color:#f2bf4c}
+.top-actions{gap:7px}
+.icon-button{background:#ffffff1c;color:white;border:1px solid #ffffff55;padding:9px 10px;border-radius:8px;font-size:12px}
+.intro{background:#dce9f3;padding:7px 12px;min-height:0;align-items:center}
+.tagline{font-size:11px;color:#496d87;font-weight:650}
+.alpha-pill{display:inline-block;padding:3px 7px;font-size:9px;background:#f5f9fb;color:#35618a}
+.game-layout{display:grid;grid-template-columns:minmax(0,620px) minmax(210px,1fr);gap:14px}
+.game{border-radius:0 0 12px 12px;border:1px solid #b6c7d6;box-shadow:0 5px 20px #162e4112;background:#f5f9fb}
+.scorebar{padding:8px 10px;background:#f6f9fb;gap:10px;grid-template-columns:1fr 1.1fr 1fr}
+.player{border-radius:8px;background:#e4ebef;opacity:.75;padding:5px 10px;align-items:flex-start;min-width:0}
+.player.active{background:#fce9ac;box-shadow:inset 0 0 0 2px #e9bf57;opacity:1}
+.player strong{font-size:20px;line-height:1.15}
+.player-label{font-size:9px;letter-spacing:.09em}
+.turn-center{font-size:12px;line-height:1.2}
+.turn-center small{margin-top:3px;font-size:10px}
+.board-wrap{background:#8da7b7;padding:4px}
+.board{width:100%;height:auto;aspect-ratio:1;gap:1px;padding:1px;background:#8098aa;border-radius:2px}
+.sq{background:#edf2f5;border-radius:3px;box-shadow:inset 0 -1px 0 #c2d0dc;overflow:hidden}
+.sq.premium-DL{background:#b9dfed;color:#34688e}
+.sq.premium-TL{background:#85c3a5;color:#225e45}
+.sq.premium-DW{background:#efbdb4;color:#9b473c}
+.sq.premium-TW{background:#efba75;color:#8b5219}
+.sq .bonus{font-size:9px;letter-spacing:-.06em;font-weight:900}
+.sq.center .bonus{font-size:13px}
+.block{border-radius:3px;background:#e9c176;color:#2b3541;box-shadow:inset 0 2px 1px #ffe4a5,inset 0 -2px 1px #bb813b;font-family:'Cooper Black','Rockwell Extra Bold',Georgia,serif}
+.block .face{height:94%;width:94%;background:linear-gradient(135deg,#f3d491,#e4b763);border:0;border-radius:2px;text-shadow:none}
+.block .points{color:#34322d;font-weight:850}
+.sq .block{font-size:clamp(12px,2.8vw,27px)}
+.rack-area{padding:10px 12px 12px}
+.rack-heading{font-size:11px}
+.rack{margin:9px auto 7px;gap:5px;min-height:0}
+.rack .block{width:min(13%,56px);font-size:clamp(22px,4vw,34px);aspect-ratio:1}
+.hint{font-size:11px;min-height:0;margin-bottom:5px}
+.controls{margin-top:8px;flex-wrap:nowrap;gap:5px}
+.controls button{min-height:42px;white-space:nowrap;border-radius:7px}
+.controls .primary{flex:1.5;background:#2975ae;box-shadow:0 2px 0 #1e537f}
+.secondary{background:#e5edf2;color:#36526a}
+.panel{background:#f4f8fa;border-color:#cddde7}
+.panel h3{font-size:25px}
+footer{color:#657682}
+body.playful .block{border-width:2px;box-shadow:inset 0 1px 1px #fff5d4,1px 2px 0 #7c573b}
+body.playful .board{gap:1px}
+body.playful .sq{overflow:hidden}
+@media(max-width:850px){.game-layout{grid-template-columns:1fr}.sidebar{display:grid;grid-template-columns:1fr 1fr}.sidebar .privacy{grid-column:1/-1}.intro{margin:0}}
+@media(max-width:520px){
+  body{background:#e3edf4}
+  .shell{padding:0;min-height:100dvh}
+  .top{border-radius:0;padding:7px 10px;min-height:58px}
+  .top .eyebrow{font-size:7px;letter-spacing:.12em}
+  h1{font-size:27px}
+  .icon-button{padding:7px 9px;font-size:12px}
+  .icon-button span{display:none}
+  .intro{padding:4px 9px;min-height:22px}
+  .alpha-pill{font-size:8px}
+  .tagline{font-size:9px}
+  .game{border:0;border-radius:0;box-shadow:none}
+  .scorebar{padding:5px 7px;gap:6px}
+  .player{padding:4px 8px}
+  .player-label{font-size:8px}
+  .player strong{font-size:19px}
+  .turn-center{font-size:11px}
+  .turn-center small{font-size:9px}
+  .board-wrap{padding:3px}
+  .board{gap:1px;padding:1px}
+  .sq{border-radius:2px}
+  .sq .bonus{font-size:clamp(5px,1.7vw,9px)}
+  .sq.center .bonus{font-size:11px}
+  .sq .block{font-size:clamp(11px,3.2vw,15px)}
+  .block .points{font-size:6px}
+  .rack-area{padding:8px 9px 10px}
+  .rack{gap:4px;margin:7px auto 6px}
+  .rack .block{width:13.4%;font-size:clamp(23px,7vw,30px)}
+  .controls{gap:4px;margin-top:6px}
+  .controls button{font-size:11px;min-height:41px;padding:7px 6px}
+  .controls .primary{flex:1.4}
+  .sidebar{padding:10px;grid-template-columns:1fr}
+  .sidebar .panel:first-child{display:none}
+  .panel{padding:12px}
+  footer{padding:8px 12px 24px}
+}
+</style></head>
+<body><div class="shell">
+<header class="top"><div><div class="eyebrow">YOUR WORDS. YOUR GAME.</div><h1>Jargon<span class="logo-dot">.</span></h1></div><div class="top-actions"><button id="theme" class="icon-button" type="button" aria-label="Switch visual style">◧ <span>Sophisticated</span></button><button id="rules" class="icon-button" type="button">ⓘ Rules</button></div></header>
+<main><div class="intro"><span class="alpha-pill">LOCAL TWO-PLAYER DEMO</span><span class="tagline">Your words. Your game. No trackers.</span></div>
+<div class="game-layout"><section class="game" aria-label="Jargon game"><div class="scorebar"><div class="player active" id="player0"><span class="player-label">PLAYER ONE</span><strong id="score0">0</strong></div><div class="turn-center"><span id="turn-label">Player One’s turn</span><small id="bag-count">86 letters left</small></div><div class="player" id="player1"><span class="player-label">PLAYER TWO</span><strong id="score1">0</strong></div></div>
+<div class="board-wrap"><div class="board" id="board" role="grid" aria-label="15 by 15 word board"></div></div>
+<div class="rack-area"><div class="rack-heading"><span>YOUR TILES</span><button id="shuffle" class="text-button">↝ Shuffle</button></div><div class="rack" id="rack" aria-label="Your letter rack"></div><div class="hint" id="hint" role="status" aria-live="polite">Select a letter, then tap a square to place it.</div><div class="controls"><button type="button" id="recall" class="secondary">Recall</button><button type="button" id="pass" class="secondary">Pass</button><button type="button" id="swap" class="secondary">Swap</button><button type="button" id="play" class="primary">Play word</button></div></div></section>
+<aside class="sidebar"><div class="panel"><span class="panel-kicker">THE WORKSHOP</span><h3>Make every<br>word count.</h3><p>Thick, friendly letters and warm wood grain. Same rules, two looks.</p><div class="blocks-deco" aria-hidden="true"><span>J</span><span>A</span><span>R</span><span>G</span><span>O</span><span>N</span></div></div><div class="panel small"><span class="panel-kicker">RECENT MOVES</span><ol id="history" class="history"><li>No moves yet. The board is yours!</li></ol></div><div class="panel small privacy"><strong>◈ Privacy, built in.</strong><p>No ads, trackers, analytics, logins, or third-party fonts. This local demo saves game state only in your own browser.</p><button type="button" id="export" class="text-button">Export game JSON ↓</button><button type="button" id="reset" class="text-button danger">Delete saved game & restart</button></div></aside></div></main>
+<footer>JARGON · Made for words, not data mining. <span>Alpha demonstration — limited dictionary</span></footer>
+</div><dialog id="dialog"><form method="dialog"><h3 id="dialog-title">Between turns</h3><p id="dialog-message">Pass the device to the next player.</p><button id="dialog-close" class="primary">Ready to play</button></form></dialog><script>
+// ===== Jargon pure rules engine =====
+/** Jargon pure game engine. No storage, analytics, network, DOM, or platform dependencies. */
+const SIZE = 15;
+const RACK_SIZE = 7;
+const BINGO = 40;
+const RULES_VERSION = 'jargon-alpha-1';
+const DISTRIBUTION = {
+    A: [9, 1], B: [2, 3], C: [2, 3], D: [4, 2], E: [12, 1], F: [2, 4], G: [3, 2], H: [2, 4], I: [9, 1], J: [1, 8], K: [1, 5], L: [4, 1], M: [2, 3], N: [6, 1], O: [8, 1], P: [2, 3], Q: [1, 10], R: [6, 1], S: [4, 1], T: [6, 1], U: [4, 1], V: [2, 4], W: [2, 4], X: [1, 8], Y: [2, 4], Z: [1, 10], '?': [2, 0]
+};
+function bonuses() {
+    // Original symmetrical pattern. Same bonus coordinates for all players, distinct from reference products.
+    const a = Array.from({ length: SIZE }, () => Array(SIZE).fill(null));
+    const set = (r, c, b) => { for (const [x, y] of [[r, c], [r, SIZE - 1 - c], [SIZE - 1 - r, c], [SIZE - 1 - r, SIZE - 1 - c], [c, r], [c, SIZE - 1 - r], [SIZE - 1 - c, r], [SIZE - 1 - c, SIZE - 1 - r]])
+        a[x][y] = b; };
+    set(0, 0, 'TW');
+    set(1, 5, 'TL');
+    set(2, 2, 'DW');
+    set(3, 6, 'DL');
+    set(4, 4, 'TL');
+    set(5, 5, 'DW');
+    set(0, 7, 'DW');
+    set(7, 7, 'DW');
+    return a;
+}
+const PREMIUM = bonuses();
+function fullBag() { let id = 1; return Object.entries(DISTRIBUTION).flatMap(([letter, [count, points]]) => Array.from({ length: count }, () => ({ id: id++, letter, points, blank: letter === '?' }))); }
+function shuffled(items, rand) { const a = [...items]; for (let i = a.length - 1; i > 0; i--) {
+    const u = rand();
+    if (!Number.isFinite(u) || u < 0 || u >= 1)
+        throw new Error('Invalid random source');
+    const j = Math.floor(u * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+} return a; }
+function draw(bag, n) { return bag.splice(0, Math.min(n, bag.length)); }
+function createGame(rand = Math.random, dictionaryVersion = 'starter-demo-1') {
+    const bag = shuffled(fullBag(), rand);
+    return { board: Array.from({ length: SIZE }, () => Array(SIZE).fill(null)), bag, racks: [draw(bag, 7), draw(bag, 7)], scores: [0, 0], turn: 0, consecutiveScoreless: 0, finished: false, winner: null, history: [], dictionaryVersion, rulesVersion: RULES_VERSION };
+}
+function assert(cond, message) { if (!cond)
+    throw new Error(message); }
+function key(r, c) { return `${r},${c}`; }
+function inBounds(r, c) { return Number.isInteger(r) && Number.isInteger(c) && r >= 0 && r < SIZE && c >= 0 && c < SIZE; }
+function occupied(board, r, c) { return inBounds(r, c) && board[r][c] !== null; }
+function buildWord(board, r, c, axis) {
+    const dr = axis === 'V' ? 1 : 0, dc = axis === 'H' ? 1 : 0;
+    while (occupied(board, r - dr, c - dc)) {
+        r -= dr;
+        c -= dc;
+    }
+    const sq = [];
+    while (occupied(board, r, c)) {
+        sq.push({ row: r, col: c });
+        r += dr;
+        c += dc;
+    }
+    return sq;
+}
+function wordLetters(board, sq) { return sq.map(x => board[x.row][x.col].as).join(''); }
+function scoreWord(board, sq, newPositions) {
+    let letterSum = 0, wordMult = 1;
+    for (const { row, col } of sq) {
+        const cell = board[row][col];
+        const bonus = newPositions.has(key(row, col)) ? PREMIUM[row][col] : null;
+        letterSum += cell.tile.points * (bonus === 'DL' ? 2 : bonus === 'TL' ? 3 : 1);
+        wordMult *= bonus === 'DW' ? 2 : bonus === 'TW' ? 3 : 1;
+    }
+    return letterSum * wordMult;
+}
+function play(state, move, check, rand = Math.random) {
+    assert(!state.finished, 'Game already finished');
+    const player = state.turn, other = (1 - player);
+    const next = { ...state, board: state.board.map(row => row.map(cell => cell ? { ...cell } : null)), bag: [...state.bag], racks: [[...state.racks[0]], [...state.racks[1]]], scores: [...state.scores], history: [...state.history] };
+    let gain = 0;
+    let entries = [];
+    let summary = { player, kind: move.kind, score: 0, words: [] };
+    if (move.kind === 'resign') {
+        next.finished = true;
+        next.winner = other;
+        next.resigned = player;
+    }
+    else if (move.kind === 'pass') {
+        next.consecutiveScoreless++;
+    }
+    else if (move.kind === 'swap') {
+        assert(Array.isArray(move.tileIds) && move.tileIds.length > 0 && move.tileIds.length <= RACK_SIZE, 'Choose tiles to swap');
+        assert(next.bag.length >= RACK_SIZE, 'At least seven tiles must remain to swap');
+        assert(new Set(move.tileIds).size === move.tileIds.length, 'Duplicate tiles');
+        const selected = move.tileIds.map(id => next.racks[player].find(t => t.id === id));
+        assert(selected.every(Boolean), 'Tile not in rack');
+        next.racks[player] = next.racks[player].filter(t => !move.tileIds.includes(t.id));
+        const replacements = draw(next.bag, move.tileIds.length);
+        next.racks[player].push(...replacements);
+        next.bag.push(...selected);
+        next.bag = shuffled(next.bag, rand);
+        // Swap draws replacements before mixing the returned tiles into the remaining bag.
+        next.consecutiveScoreless++;
+    }
+    else {
+        const ps = move.placements;
+        assert(Array.isArray(ps) && ps.length >= 1 && ps.length <= RACK_SIZE, 'Place 1 to 7 tiles');
+        const positions = new Set(), ids = new Set();
+        for (const p of ps) {
+            assert(inBounds(p.row, p.col), 'Tile outside board');
+            assert(!next.board[p.row][p.col], 'Square already occupied');
+            assert(!positions.has(key(p.row, p.col)), 'Duplicate square');
+            assert(!ids.has(p.tileId), 'Duplicate tile');
+            positions.add(key(p.row, p.col));
+            ids.add(p.tileId);
+            const tile = next.racks[player].find(t => t.id === p.tileId);
+            assert(tile, 'Tile not in rack');
+            const as = tile.blank ? p.as?.toUpperCase() : tile.letter;
+            assert(!!as && /^[A-Z]$/.test(as), 'Blank must designate one A–Z letter');
+            next.board[p.row][p.col] = { tile, as, owner: player };
+        }
+        const rows = new Set(ps.map(p => p.row)), cols = new Set(ps.map(p => p.col));
+        assert(rows.size === 1 || cols.size === 1, 'Tiles must form a single straight line');
+        const axis = rows.size === 1 ? 'H' : 'V';
+        // First locate the main word. For a single tile, infer the longer direction.
+        let main = buildWord(next.board, ps[0].row, ps[0].col, axis);
+        if (ps.length === 1) {
+            const alt = buildWord(next.board, ps[0].row, ps[0].col, axis === 'H' ? 'V' : 'H');
+            if (alt.length > main.length) {
+                main = alt;
+            }
+        }
+        assert(main.length > 1, 'A play must form a word of at least two letters');
+        assert(ps.every(p => main.some(x => x.row === p.row && x.col === p.col)), 'Gaps in the placed word');
+        const hasOld = state.board.some(row => row.some(Boolean));
+        if (!hasOld)
+            assert(main.some(p => p.row === 7 && p.col === 7), 'First word must cover center');
+        else
+            assert(ps.some(p => [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dr, dc]) => occupied(state.board, p.row + dr, p.col + dc))), 'Word must connect to existing tiles');
+        const all = [main];
+        const seen = new Set([main.map(p => key(p.row, p.col)).join('|')]);
+        for (const p of ps) {
+            const otherAxis = main.length > 1 && (main[0].row === main.at(-1).row) ? 'V' : 'H';
+            const cross = buildWord(next.board, p.row, p.col, otherAxis);
+            if (cross.length > 1) {
+                const sig = cross.map(x => key(x.row, x.col)).join('|');
+                if (!seen.has(sig)) {
+                    seen.add(sig);
+                    all.push(cross);
+                }
+            }
+        }
+        entries = all.map(squares => ({ word: wordLetters(next.board, squares), squares, score: scoreWord(next.board, squares, positions) }));
+        assert(entries.every(w => check(w.word)), 'One or more words are not in the selected dictionary: ' + entries.filter(w => !check(w.word)).map(w => w.word).join(', '));
+        gain = entries.reduce((n, w) => n + w.score, 0) + (ps.length === RACK_SIZE ? BINGO : 0);
+        next.scores[player] += gain;
+        next.racks[player] = next.racks[player].filter(t => !ids.has(t.id));
+        next.racks[player].push(...draw(next.bag, RACK_SIZE - next.racks[player].length));
+        next.consecutiveScoreless = 0;
+        summary = { ...summary, score: gain, words: entries.map(w => w.word), placements: ps.map(p => ({ row: p.row, col: p.col, as: next.board[p.row][p.col].as })) };
+    }
+    next.history.push(summary);
+    if (!next.finished && (next.consecutiveScoreless >= 6 || (next.bag.length === 0 && next.racks[player].length === 0))) {
+        next.finished = true;
+        const rem = next.racks.map(r => r.reduce((n, t) => n + t.points, 0));
+        next.scores[0] -= rem[0];
+        next.scores[1] -= rem[1];
+        if (next.bag.length === 0 && next.racks[player].length === 0)
+            next.scores[player] += rem[other];
+        next.winner = next.scores[0] === next.scores[1] ? 'tie' : next.scores[0] > next.scores[1] ? 0 : 1;
+    }
+    if (!next.finished)
+        next.turn = other;
+    return { state: next, score: gain, words: entries };
+}
+function viewFor(state, player) {
+    return { board: state.board.map(row => row.map(c => c ? { letter: c.as, points: c.tile.points, owner: c.owner } : null)), rack: state.racks[player].map(t => ({ ...t })), opponentTileCount: state.racks[(1 - player)].length, bagCount: state.bag.length, scores: state.scores, turn: state.turn, finished: state.finished, winner: state.winner, history: state.history, rulesVersion: state.rulesVersion, dictionaryVersion: state.dictionaryVersion, premiums: PREMIUM };
+}
+
+// ===== Alpha dictionary =====
+/** ALPHA starter list. Explicitly NOT the full ENABLE dictionary; see docs/DICTIONARY.md. */
+const raw = `A AN AS AT AM AX AY BE BY DO GO HE HI IF IN IS IT ME MY NO OF OH ON OR OX OW SO TO UP US WE YE
+ACE ACT ADD AGE AGO AID AIM AIR ALE ALL AND ANT ANY APE APP ARE ARM ART ASK ATE AWE AWL AXE BAD BAG BAN BAR BAT BAY BED BEE BEG BET BID BIG BIN BIT BOB BOG BOO BOX BOY BUD BUG BUS BUT BUY CAB CAD CAM CAN CAP CAR CAT COB COD COG CON COO COP COT COW COY CRY CUB CUD CUP CUT DAB DAD DAM DAY DEN DEW DID DIE DIG DIM DIP DOC DOE DOG DOT DRY DUB DUE DUG DYE EAR EAT EBB EEL EGG EGO ELF ELK ELM END ERA ERR EVE EWE EYE FAB FAC FAN FAR FAT FAX FAY FED FEE FEW FIB FIG FIN FIR FIT FIX FLY FOB FOG FOR FOX FRY FUN FUR GAB GAD GAG GAP GAS GAT GAY GEL GEM GET GIG GIN GNU GOD GOT GUM GUN GUT GUY GYM HAD HAM HAS HAT HAY HEM HEN HER HEW HEX HEY HID HIM HIP HIS HIT HOB HOG HOP HOT HOW HUB HUG HUM HUT ICE ICK ICY ILL IMP INK INN ION IRE IRK ITS IVY JAB JAG JAM JAR JAW JAY JET JIB JIG JOB JOG JOT JOY JUG JUT KAY KEN KEY KID KIN KIT LAB LAD LAG LAP LAW LAY LED LEE LEG LET LID LIE LIP LIT LOG LOT LOW LUG LYE MAD MAG MAN MAP MAR MAT MAY MEN MET MEW MID MIX MOB MOD MOM MOP MOW MUD MUG NAB NAG NAP NET NEW NIB NIL NIP NIT NOD NOR NOT NOW NUB NUN NUT OAK OAR OAT ODD OFF OIL OLD ONE OPT OUR OUT OVA OWE OWL OWN PAD PAL PAN PAP PAR PAT PAW PAY PEA PEG PEN PEP PER PET PEW PIE PIG PIN PIT PLY POD POP POT POW POX PRY PUB PUG PUN PUP PUT RAD RAG RAM RAN RAP RAT RAW RAY RED REP RIB RID RIG RIM RIP ROB ROD ROE ROT ROW RUB RUG RUM RUN RUT RYE SAC SAD SAG SAP SAT SAW SAY SEA SEE SET SEW SHE SHY SIC SIN SIP SIR SIT SIX SKI SKY SOB SOD SON SOP SOT SOW SOY SPA SPY STY SUB SUE SUM SUN SUP TAB TAD TAG TAN TAP TAR TAX TEA TED TEE TEN THE THY TIC TIE TIN TIP TOC TOE TOG TOM TON TOO TOP TOR TOT TOW TOY TRY TUB TUG TUN TUT TWO UGH USE VAN VAT VET VEX VIA VIE VIM VOW WAD WAG WAN WAR WAS WAX WAY WEB WED WEE WET WHO WHY WIG WIN WIT WOE WON WOO WOW WRY YAK YAM YAP YAW YEA YES YET YEW YIN YIP YOU ZAG ZAP ZED ZEN ZIP ZOO
+ABLE ACID ACME ACNE ACRE ACTS AGED AGES AIDS AIMS AIRS ALSO ALTO AMEN AMID AMMO ANAL ANDS ANEW ANTS APES APEX AREA ARIA ARID ARMS ARMY ARTS ASKS ATOM AUNT AUTO AVER AWAY AWEY AXES BABE BABY BACK BADE BAGS BAIT BAKE BALD BALE BALL BAND BANE BANG BANK BARE BARK BARN BASE BASH BASK BASS BATH BATS BEAD BEAK BEAM BEAN BEAR BEAT BEDS BEEF BEEN BEER BEES BEET BEGS BELL BELT BEND BENT BEST BETA BIAS BIDE BIKE BILE BILL BIND BIRD BITE BITS BLED BLOW BLUE BOAR BOAT BODY BOIL BOLD BOLT BOMB BONE BOOK BOOM BOON BOOT BORE BORN BOSS BOTH BOWL BOYS BRAG BRAN BRAT BRED BREW BRIM BROW BUCK BUDS BUGS BULB BULL BUMP BUNK BURN BURY BUSH BUSY BUTT BUYS BYTE CABS CAFE CAGE CAKE CALF CALL CALM CAME CAMP CANE CANS CAPE CAPS CARD CARE CARP CARS CART CASE CASH CAST CATS CAVE CELL CENT CHAD CHAT CHEF CHEW CHIN CHIP CHOP CHOW CITE CITY CLAD CLAM CLAP CLAY CLIP CLOG CLUB CLUE COAL COAT CODE CODS COIL COIN COLD COLT COMB COME CONE COOK COOL COOP COPE COPY CORD CORE CORK CORN COST COZY CRAB CRAM CREW CROP CROW CUBE CUFF CURE CURL CUTE CUTS DADS DALE DAME DAMP DARE DARK DARN DART DASH DATA DATE DAWN DAYS DEAD DEAF DEAL DEAN DEAR DEBT DECK DEED DEEM DEEP DEER DEFT DELI DENT DENY DESK DICE DIED DIET DIGS DIME DINE DING DIPS DIRT DISH DIVE DOCK DOES DOGS DOLL DOME DONE DOOR DOSE DOTS DOWN DRAB DRAG DRAW DREW DRIP DROP DRUG DRUM DUAL DUCK DUDE DULL DUMB DUMP DUNE DUNK DUSK DUST DUTY EACH EARN EARS EASE EAST EASY EATS EDGE EDIT EGGS ELSE EMIT ENDS ENVY EPIC EROS EVEN EVER EVIL EXAM EXIT EYES FACE FACT FADE FAIL FAIR FAKE FALL FAME FANG FANS FARE FARM FAST FATE FAWN FEAR FEAT FEED FEEL FEET FELL FELT FEND FERN FEST FETA FEUD FILE FILL FILM FIND FINE FIRE FIRM FISH FIST FIVE FLAG FLAP FLAT FLAW FLED FLEE FLEW FLEX FLIP FLOW FOAM FOES FOGS FOIL FOLD FOLK FOND FONT FOOD FOOL FOOT FORD FORE FORK FORM FORT FOUL FOUR FOWL FRAY FREE FRET FROM FUEL FULL FUND FUNK FURY FUSE FUSS GAIN GALE GAME GANG GAPS GATE GAVE GEAR GEEK GEMS GENE GENT GERM GIFT GIGS GILL GILT GIRL GIVE GLAD GLEE GLEN GLIB GLOW GLUE GLUT GOAL GOAT GODS GOES GOLD GOLF GONE GOOD GOOF GORE GOWN GRAB GRAM GRAY GREW GRID GRIM GRIN GRIP GRIT GROW GULF GULL GULP GUMS GURU GUSH GUST GUTS GUYS GYRO HAIL HAIR HALF HALL HALO HALT HAND HANG HARD HARE HARK HARM HARP HART HASH HATE HATS HAUL HAVE HAWK HAYS HAZE HEAD HEAL HEAP HEAR HEAT HECK HEED HEEL HEIR HELD HELL HELM HELP HEMS HENS HERB HERD HERE HERO HERS HIDE HIGH HIKE HILL HILT HINT HIPS HIRE HISS HITS HIVE HOAX HOBS HOLD HOLE HOLY HOME HONE HOOD HOOK HOOP HOOT HOPE HORN HOST HOUR HOVE HOWL HUES HUGE HUGS HULL HUMP HUNG HUNK HUNT HURL HURT HUSH HUTS HYMN ICON IDEA IDLE IDOL INCH INFO INKS INKY INNS INTO IONS IOTA IRIS IRON ISLE ITEM ITCH JACK JADE JAIL JAMS JARS JAVA JAWS JAZZ JEAN JEEP JERK JEST JETS JIGS JINX JOBS JOCK JOGS JOIN JOKE JOLT JOTS JOYS JUMP JUNE JUNK JURY JUST KALE KEEN KEEP KEPT KEYS KICK KIDS KILL KILO KIND KING KINK KISS KITE KITS KIWI KNEE KNEW KNIT KNOW LACE LACK LACY LADS LADY LAID LAIN LAIR LAKE LAMB LAME LAMP LAND LANE LANG LAPS LARD LARK LAST LATE LAUD LAWN LAWS LAYS LAZY LEAD LEAF LEAK LEAN LEAP LEAR LEFT LEGS LEND LENS LESS LEST LETS LEVY LIAR LICE LICK LIDS LIED LIES LIFE LIFT LIKE LILY LIMB LIME LIMP LINE LINK LINT LION LIPS LISP LIST LIVE LOAD LOAF LOAM LOAN LOBE LOCK LODE LOFT LOGS LONE LONG LOOK LOOM LOOP LOOT LORD LORE LOSE LOSS LOST LOTS LOUD LOVE LUCK LUMP LUNG LURE LURK LUSH LUST LUTE LYNX MADE MAID MAIL MAIN MAKE MALE MALL MALT MAMA MANY MAPS MARE MARK MARS MART MASH MASK MASS MAST MATE MATH MATS MAZE MEAD MEAL MEAN MEAT MEET MELT MEMO MEND MENU MERE MESH MESS MICE MILD MILE MILK MILL MIME MIND MINE MINI MINT MIRE MISS MIST MITE MITT MOAN MOAT MOCK MODE MOLD MOLE MOLT MONK MOOD MOON MOOR MORE MOSS MOST MOTH MOVE MUCH MUCK MULE MULL MUSE MUST MUTE MYTH NAIL NAME NAPE NAVY NEAR NEAT NECK NEED NEON NEST NETS NEWS NEXT NICE NICK NINE NIPS NODE NOEL NONE NOOK NOON NORM NOSE NOTE NOUN NOVA NUDE NULL NUMB NUNS NUTS OAKS OARS OATS OATH OBEY ODDS ODOR OGRE OILS OKAY OLDS OMEN ONCE ONES ONLY ONTO OOZE OPEN OPUS ORAL ORBS ORES ORGY OURS OUST OVAL OVEN OVER OWED OWES OWLS OWNS OXEN PACE PACK PACT PAGE PAID PAIL PAIN PAIR PALE PALM PALS PANE PANG PANS PAPA PAPER? PARK PART PASS PAST PATH PATS PAVE PAWS PEAK PEAR PEAS PEAT PECK PEEK PEEL PEER PELT PENS PENT PEON PERK PEST PETS PHEW PICK PIER PIES PIGS PIKE PILE PILL PINE PING PINK PINS PINT PIPE PITS PITY PLAN PLAY PLEA PLOT PLOW PLOY PLUG PLUM PLUS POEM POET POKE POLE POLL POLO POND PONY POOL POOR POSE POST POTS POUR POUT PRAY PREP PREY PROD PROP PROS PUCK PUFF PULL PULP PUMP PUNK PURE PUSH PUTS QUAD QUAY QUIZ RACE RACK RAFT RAGE RAGS RAID RAIL RAIN RAKE RAMP RANG RANK RANT RARE RASH RATE RATS RAVE RAYS READ REAL REAP REAR REDS REED REEF REEL REIN RELY RENT REST RICE RICH RIDE RIDS RIFE RIFT RIGS RILL RIMS RIND RING RIOT RIPE RISE RISK RITE ROAD ROAM ROAR ROBE ROCK RODE ROLE ROLL ROMP ROOF ROOK ROOM ROOT ROPE ROSE ROSY ROTE ROTS ROUT ROVE ROWS RUDE RUGS RULE RUMP RUNE RUNG RUNS RUNT RUSE RUSH RUST RUTH SACK SAFE SAGA SAGE SAID SAIL SAKE SALE SALT SAME SAND SANE SANG SANK SASH SATE SAVE SAWN SAYS SCAB SCAN SCAR SCAT SCUM SEAL SEAM SEAR SEAT SEED SEEK SEEM SEEN SEEP SEER SELF SELL SEMI SEND SENT SEPT SERF SETS SEWN SEXY SHED SHIP SHOE SHOP SHOT SHOW SHUT SICK SIDE SIFT SIGH SIGN SILK SILT SINE SING SINK SINS SIRE SITE SITS SIZE SKAT SKEW SKID SKIM SKIN SKIP SKIT SLAB SLAM SLAP SLAT SLAW SLAY SLED SLEW SLID SLIM SLIP SLOB SLOG SLOP SLOT SLOW SLUG SLUM SLUR SMOG SNAP SNIP SNOB SNOT SNOW SOAP SOAR SOCK SODA SOFA SOFT SOIL SOLD SOLE SOLO SOME SONG SONS SOON SOOT SORE SORT SOUL SOUP SOUR SOWN SPAN SPAR SPAT SPAY SPEC SPED SPEW SPIN SPIT SPOT SPUN SPUR STAB STAG STAR STAY STEM STEP STEW STIR STOP STOW STUB STUD STUN SUCH SUCK SUED SUIT SUMO SUNG SUNK SURE SURF SWAM SWAN SWAP SWAT SWAY SWIM SWUM TABS TACK TACO TACT TAIL TAKE TALE TALK TALL TAME TANK TAPE TAPS TARE TARN TASK TATE TAXI TEAK TEAM TEAR TEAS TECH TEEM TEEN TELL TEND TENT TERM TEST TEXT THAN THAT THAW THEM THEN THEY THIN THIS THOU THUD THUG TICK TIDE TIDY TIED TIER TIES TILE TILL TILT TIME TINE TINY TIPS TIRE TOAD TOES TOIL TOLD TOLL TOMB TOME TONE TONG TONS TOOL TOOT TOPS TORE TORN TORS TORT TOSS TOTE TOUR TOWN TOYS TRAM TRAP TRAY TREE TREK TRIM TRIO TRIP TROT TRUE TUBA TUBE TUCK TUFT TUGS TUNA TUNE TURF TURN TUSH TUSK TUTU TWIG TWIN TWOS TYPE UGLY UNDO UNIT UNTO UPON URGE USED USER USES UTAH? VAIN VALE VANE VANS VARY VASE VAST VATS VEAL VEER VEIL VEIN VEND VENT VERB VERY VEST VETO VETS VIAL VICE VIEW VILE VINE VISA VISE VOID VOLE VOLT VOTE VOWS WAGE WAGS WAIL WAIT WAKE WALK WALL WAND WANE WANT WARD WARE WARM WARN WARP WARS WARY WASH WASP WAVE WAVY WAYS WEAK WEAR WEBS WEED WEEK WEEP WELL WENT WERE WEST WETS WHAT WHEN WHET WHIP WHIR WHIZ WHOM WICK WIDE WIFE WILD WILL WILT WILY WIND WINE WING WINK WINS WIPE WIRE WISE WISH WITH WITS WOKE WOLF WOMB WOOD WOOF WOOL WORD WORE WORK WORM WORN WRAP WREN WRIT YAKS YAMS YARD YARN YAWN YEAH YEAR YEAS YELL YELP YENS YETI YOGA YOKE YOLK YOUR YOWL YUAN ZANY ZAPS ZERO ZEST ZIGS ZINC ZING ZIPS ZONE ZOOM
+ABOUT ABOVE ACTOR ADDED AFTER AGAIN AGENT AGREE AHEAD ALBUM ALIEN ALIVE ALLOW ALONE ALONG ALTER AMBER AMONG ANGEL ANGER ANGLE ANKLE APPLE APPLY APRON ARENA ARGUE ARISE ARRAY ARROW ASIDE ASSET ATLAS AUDIO AVOID AWAKE AWARD AWARE BACON BADGE BASIC BASIL BATCH BEACH BEANS BEARD BEARS BEAST BEATS BEGIN BEING BELLY BELOW BENCH BERRY BIBLE BIRTH BLACK BLADE BLAME BLAND BLANK BLAST BLAZE BLEED BLEND BLESS BLIND BLOCK BLOOD BLOOM BLOWN BLUES BLUFF BOARD BOAST BOATS BONUS BOOKS BOOTH BOOTS BORED BOUND BOWLS BOXES BRAIN BRAKE BRAND BRAVE BREAD BREAK BREED BRICK BRIDE BRIEF BRING BROAD BROKE BROWN BRUSH BUILD BUILT BUNCH BURNT BUYER CABLE CAKES CAMEL CANAL CANDY CARRY CASES CATCH CAUSE CHAIN CHAIR CHALK CHARM CHART CHASE CHEAP CHECK CHEER CHEFS CHESS CHEST CHIEF CHILD CHILL CHINA CHIPS CHOIR CHOSE CIVIL CLAIM CLASS CLEAN CLEAR CLERK CLICK CLIFF CLIMB CLOCK CLOSE CLOTH CLOUD CLOWN COACH COAST COATS CODES COINS COLOR COMES COMET COMIC COOKS COPES CORAL CORES COULD COUNT COURT COVER COWBOY? CRACK CRAFT CRANE CRASH CRAZY CREAM CREEK CRIME CRISP CROPS CROSS CROWD CROWN CRUDE CRUEL CRUSH CUBES CURVE CYCLE DAILY DAIRY DANCE DARED DATES DEALS DEATH DEBIT DECAY DECOR DELAY DENSE DEPTH DEVIL DIARY DICEY DIGIT DINER DIRTY DISCO DITCH DIVER DIZZY DOING DONOR DOORS DOUBT DOUGH DOZEN DRAFT DRAIN DRAMA DRAWN DREAM DRESS DRIED DRINK DRIVE DROPS DROVE DRUNK DRYER DUMMY DUSTY DWARF EAGER EAGLE EARLY EARTH EASEL EIGHT ELBOW ELDER ELECT ELITE EMPTY ENEMY ENJOY ENTER ENTRY EQUAL EQUIP ERROR ESSAY EVENT EVERY EXACT EXAMS EXIST EXTRA FABLE FACED FACTS FAINT FAIRY FAITH FALSE FANCY FARMS FATAL FAULT FAVOR FEAST FEATS FENCE FERRY FETCH FEVER FEWER FIBER FIELD FIEND FIFTH FIFTY FIGHT FILES FILMS FINAL FINCH FINDS FINED FINER FIRED FIRES FIRST FISHY FIXED FLAME FLASH FLEET FLESH FLIES FLOAT FLOOD FLOOR FLOUR FLOWS FLUID FLUTE FOCUS FOLKS FORCE FORMS FORTH FORTY FOUND FRAME FRANK FRAUD FRESH FRIES FRONT FROST FRUIT FULLY FUNDS FUNNY FURRY GAMES GATES GAUGE GEAR? GEESE GENTS GHOST GIANT GIFTS GIRLS GIVEN GLASS GLEAM GLOBE GLOOM GLORY GLOVE GOALS GOING GOODS GRACE GRADE GRAIN GRAND GRANT GRAPE GRAPH GRASP GRASS GRAVE GRAVY GREAT GREED GREEN GREET GRIEF GRILL GRIND GROAN GROOM GROUP GROVE GROWN GUARD GUESS GUEST GUIDE GUILT HABIT HAIRY HANDS HAPPY HARDY HASTE HATCH HATED HAVEN HAVOC HEADS HEARD HEART HEATS HEAVY HELLO HELPS HERBS HEROES? HIDES HIKER HILLS HINTS HIRED HOBBY HOLDS HOLES HOMES HONEY HONOR HOOPS HOPES HORSE HOTEL HOURS HOUSE HUMAN HUMID HUMOR HURRY IDEAL IDEAS IDIOM IMAGE IMPLY INBOX INDEX INNER INPUT IRONY ISSUE ITEMS IVORY JAR? JEANS JELLY JEWEL JOINS JOINT JOKER JOKES JOLLY JOUST JUDGE JUICE JUMPS JUMPY KAYAK KEEPS KICKS KILLS KINDS KINGS KITES KITTY KNACK KNEAD KNEEL KNIFE KNOCK KNOWN LABEL LABOR LACED LACKS LADEN LADLE LAKES LAMPS LANCE LARGE LASER LATER LAUGH LAYER LEADS LEAFY LEARN LEASE LEAST LEAVE LEDGE LEFTY LEGAL LEMON LEVEL LEVER LIGHT LIKES LIMIT LINEN LINES LINKS LIONS LISTS LIVED LIVER LIVES LOADS LOANS LOCAL LOCKS LODGE LOFTY LOGIC LOOSE LORDS LOSER LOSES LOVER LOVES LOWER LOYAL LUCKY LUNCH LUNGS LYING MAGIC MAJOR MAKER MAKES MANGO MANOR MAPLE MARCH MARKS MARRY MARSH MATCH MAYBE MAYOR MEALS MEANS MEANT MEATS MEDIA MERCY MERGE MERIT MERRY METAL METER MIDST MIGHT MILES MILKY MINCE MINDS MINER MINOR MINUS MIRTH MIXED MODEL MONEY MONTH MOODS MOONS MORAL MOREL MOTEL MOTOR MOUNT MOUSE MOUTH MOVED MOVES MOVIE MUDDY MUSIC MUSTY MYTHS NAILS NAMES NASTY NAVAL NEEDS NEVER NEWER NICER NIGHT NINJA NOBLE NOISE NORTH NOSEY NOTCH NOTES NOVEL NURSE OASIS OBEYS OCEAN OFFER OFTEN OLIVE OMEGA ONION OPENS OPERA ORBIT ORDER ORGAN OTHER OUGHT OUNCE OUTER OVENS OWNER OXIDE PAGES PAINT PANEL PANIC PAPER PARKS PARTS PARTY PASTA PASTE PATCH PATHS PAUSE PEACE PEACH PEARL PEARS PEDAL PENNY PESTS PHONE PHOTO PIANO PICKS PIECE PIERS PIGGY PILES PILOT PITCH PIVOT PLACE PLAIN PLANE PLANK PLANS PLANT PLATE PLAYS PLAZA PLEAD PLEAS PLOTS PLUCK PLUGS PLUME PLUMP POINT POISE POKER POLAR POLES PONDS POOLS POPE? PORCH POSES POSSE POUND POWER PRESS PRICE PRIDE PRIME PRINT PRIOR PRIZE PROBE PROOF PROPS PROUD PROVE PULLS PULSE PUNCH PUPIL PURSE PUSHY QUEEN QUERY QUEST QUICK QUIET QUILT QUITE QUOTE RABID RADIO RAILS RAINS RAISE RALLY RANCH RANGE RAPID RATIO REACH REACT READS READY REALM REBEL RECAP RECUR REDUX REEDS REEFS RELAX RELAY RENEW REPLY RESET RESTS RETRO RHYME RIDER RIDES RIDGE RIFLE RIGHT RINGS RINSE RISEN RISER RISES RISKY RIVER ROADS ROAST ROBIN ROCKS RODEO ROLES ROLLS ROMAN ROOMS ROOTS ROPES ROSES ROUND ROUTE ROVER ROYAL RUGBY RULES RUMOR RURAL RUSTY SABLE SADLY SAFER SAINT SALAD SALES SALON SALSA SALTS SALTY SANDY SAUCE SAVED SCALE SCAMP SCARE SCARF SCARY SCENT SCOOP SCOPE SCORE SCOUT SCRAP SCREW SEEDS SEEKS SEEMS SEIZE SENSE SERVE SETUP SEVEN SHADE SHAKE SHALL SHAME SHAPE SHARE SHARK SHARP SHEEP SHEER SHEET SHELF SHELL SHIFT SHINE SHINY SHIPS SHIRT SHOCK SHOES SHONE SHOOT SHORE SHORT SHOTS SHOUT SHOWN SHOWS SHRED SHRUG SIGHT SIGNS SILLY SINCE SITES SIXTH SIZED SIZES SKATE SKILL SKINS SKIRT SKULL SLATE SLEEP SLICE SLIDE SLOPE SLOTS SLOW? SMALL SMART SMASH SMELL SMILE SMOKE SNAIL SNAKE SNAPS SNEAK SNORE SNOWY SOAPY SOCKS SOLAR SOLID SOLVE SONGS SORRY SOUND SOUTH SPACE SPARE SPARK SPEAK SPEED SPELL SPEND SPENT SPICE SPICY SPIKE SPILL SPINE SPITE SPLIT SPOIL SPOKE SPOON SPORT SPOTS SPRAY SPREE SQUAD STACK STAFF STAGE STAIN STAIR STAKE STAMP STAND STARE STARK STARS START STATE STEAK STEAL STEAM STEEP STEER STEMS STEPS STICK STILL STING STOCK STONE STOOD STOOL STOOP STORE STORM STORY STOVE STRAW STRIP STUCK STUDY STUFF STYLE SUGAR SUITE SUNNY SUPER SUSHI SWAMP SWEAR SWEAT SWEEP SWEET SWIFT SWING SWORD TABLE TACKS TAILS TAKEN TAKES TALES TALKS TALLY TAMED TANKS TAPES TASTE TAXES TEACH TEAMS TEARS TEASE TEETH TELLS TEMPO TENDS TENSE TENTH TERMS TESTS THANK THEFT THEIR THEME THERE THESE THICK THIEF THIGH THING THINK THIRD THOSE THREE THREW THROW THUMB TIDAL TIGER TIGHT TILES TIMER TIMES TIRED TIRES TITLE TOAST TODAY TOKEN TONES TOOLS TOOTH TOPIC TORCH TOTAL TOUCH TOUGH TOWER TOWNS TRACK TRADE TRAIL TRAIN TRAIT TRASH TREAT TREES TREND TRIAL TRIBE TRICK TRIED TRIES TRIPS TRUCK TRULY TRUMP? TRUNK TRUST TRUTH TUBES TULIP TURNS TWICE TWINS TWIST TYPES UPPER UPSET URBAN USAGE USERS USING USUAL UTTER VALUE VALVE VAPOR VAULT VEGAN VENOM VERSE VIDEO VIEWS VIGOR VINYL VIRAL VIRUS VISIT VITAL VIVID VOCAL VOICE VOTED VOTER VOTES VOWEL WAGES WAGON WAIST WAITS WAKES WALKS WALLS WANTS WARDS WARM? WARNS WASTE WATCH WATER WAVES WEARY WEAVE WEDGE WEEKS WEIGH WEIRD WELLS WHALE WHEAT WHEEL WHERE WHICH WHILE WHITE WHOLE WHOSE WIDEN WIDER WIDTH WIELD WILDS WINDS WINES WINGS WINKS WIRED WIRES WISER WITCH WIVES WOMAN WOMEN WOODS WORDS WORKS WORLD WORMS WORRY WORSE WORST WORTH WOULD WOUND WRAPS WRIST WRITE WRONG WROTE YACHT YARDS YARNS YEARS YEAST YELLS YIELD YOUNG YOUTH ZEBRA ZEROS ZESTY ZONES
+JARGON FRIEND FRIENDS PLAYFUL WOODEN BLOCKS LETTER LETTERS GAME GAMES WORD WORDS HELLO WORLD SCRABBLE? PRIVACY PRIVATE SECURE SCORES SCORE TILES TILE RACK RACKS BOARD BOARDS BONUS BONUSES
+`;
+const words = new Set(raw.split(/\s+/).filter(x => /^[A-Z]{2,15}$/.test(x)));
+const DICTIONARY_VERSION = 'starter-demo-1';
+const dictionarySize = words.size;
+function validWord(word) { return words.has(word.toUpperCase()); }
+function getWords() { return words; }
+
+// ===== Browser UI =====
+const $=id=>document.getElementById(id);const STORE='jargon-local-alpha-v1',THEME='jargon-theme';
+// Files opened in iOS document previews may have no usable localStorage.
+// Storage failures must never prevent the board from rendering.
+const safeStorage={
+  get(key){try{return window.localStorage.getItem(key)}catch{return null}},
+  set(key,value){try{window.localStorage.setItem(key,value);return true}catch{return false}},
+  remove(key){try{window.localStorage.removeItem(key)}catch{}}
+};
+let state;try{state=JSON.parse(safeStorage.get(STORE)||'null');if(!state||state.board?.length!==15)state=createGame();}catch{state=createGame();}
+let theme=safeStorage.get(THEME)||'sophisticated',draft=[],selected=null,swapping=false;
+function persist(){safeStorage.set(STORE,JSON.stringify(state));}
+function say(message){$('hint').textContent=message;}
+function block(tile,css='',label=tile.letter){const el=document.createElement('span');el.className=`block ${css}`;el.dataset.color=tile.id%4;const face=document.createElement('span');face.className='face';face.textContent=label==='?'?'★':label;el.append(face);const pts=document.createElement('span');pts.className='points';pts.textContent=tile.points;el.append(pts);return el;}
+function tileAt(row,col){return draft.find(p=>p.row===row&&p.col===col);}
+function render(){document.body.classList.toggle('playful',theme==='playful');$('theme').lastElementChild.textContent=theme==='playful'?'Playful':'Sophisticated';$('score0').textContent=state.scores[0];$('score1').textContent=state.scores[1];$('player0').classList.toggle('active',state.turn===0);$('player1').classList.toggle('active',state.turn===1);$('turn-label').textContent=state.finished?`Game over · ${state.winner==='tie'?'Tie':`Player ${state.winner+1} wins`}`:`Player ${state.turn+1}'s turn`;$('bag-count').textContent=`${state.bag.length} letters left`;
+ const board=$('board');board.replaceChildren();for(let r=0;r<SIZE;r++)for(let c=0;c<SIZE;c++){const el=document.createElement('button');el.type='button';el.className='sq';el.setAttribute('role','gridcell');el.setAttribute('aria-label',`Row ${r+1}, column ${c+1}`);const fixed=state.board[r][c],pending=tileAt(r,c),bonus=PREMIUM[r][c];if(bonus)el.classList.add('premium-'+bonus);if(r===7&&c===7)el.classList.add('center');if(fixed){el.append(block(fixed.tile,'',fixed.as));el.setAttribute('aria-label',`Row ${r+1}, column ${c+1}, ${fixed.as}, ${fixed.tile.points} points`);}else if(pending){const tile=state.racks[state.turn].find(t=>t.id===pending.tileId);if(tile)el.append(block(tile,'placed',pending.as||tile.letter));el.setAttribute('aria-label',`Pending ${tile?.letter} at row ${r+1}, column ${c+1}; tap to recall`);}else if(bonus){const b=document.createElement('span');b.className='bonus';b.textContent=r===7&&c===7?'★':bonus;el.append(b);}el.addEventListener('click',()=>tapSquare(r,c));board.append(el);}
+ const rack=$('rack');rack.replaceChildren();for(const tile of state.racks[state.turn]){if(draft.some(p=>p.tileId===tile.id))continue;const b=block(tile,selected===tile.id?'selected':'');b.setAttribute('role','button');b.setAttribute('tabindex','0');b.setAttribute('aria-label',`${tile.blank?'Blank':tile.letter}, ${tile.points} points${selected===tile.id?', selected':''}`);const choose=()=>{if(swapping){if(!swapIds.has(tile.id))swapIds.add(tile.id);else swapIds.delete(tile.id);say(`${swapIds.size} tile(s) selected to swap. Tap Swap again to confirm.`);}else{selected=selected===tile.id?null:tile.id;say(selected?'Tap a board square to place your letter.':'Select a letter to place.');}render();};b.addEventListener('click',choose);b.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();choose();}});if(swapIds.has(tile.id))b.classList.add('selected');rack.append(b);}
+ $('history').replaceChildren();const items=state.history.slice(-8).reverse();if(!items.length){const li=document.createElement('li');li.textContent='No moves yet. The board is yours!';$('history').append(li);}for(const m of items){const li=document.createElement('li');li.textContent=`P${m.player+1} ${m.kind==='play'?`${m.words.join(' + ')} · +${m.score}`:m.kind}`;$('history').append(li);}
+ $('play').disabled=state.finished;$('pass').disabled=state.finished;$('swap').disabled=state.finished;}
+let swapIds=new Set();function tapSquare(row,col){if(state.finished)return;const existing=tileAt(row,col);if(existing){draft=draft.filter(p=>p!==existing);selected=existing.tileId;say('Letter recalled. Select its new square.');render();return;}if(state.board[row][col])return;if(selected===null){say('Choose a letter from your rack first.');return;}const tile=state.racks[state.turn].find(t=>t.id===selected);if(!tile)return;let as;if(tile.blank){as=prompt('Choose a letter for this blank tile (A–Z):','A')?.toUpperCase().trim();if(!as||!/^[A-Z]$/.test(as)){say('Blank needs a letter A–Z.');return;}}draft.push({row,col,tileId:selected,...(as?{as}:{})});selected=null;render();say(`${draft.length} letter(s) placed. Select another or press Play word.`);}
+function commit(move){try{const result=play(state,move,validWord);state=result.state;draft=[];selected=null;swapping=false;swapIds.clear();persist();render();if(move.kind==='play')say(`Played ${result.words.map(x=>x.word).join(' + ')} for ${result.score} points!`);else say(`${move.kind} completed.`);if(!state.finished)showDialog('Next player','Pass the device to Player '+(state.turn+1)+'. Their letters will appear when they tap Ready.');else showDialog('Game over',state.winner==='tie'?'It’s a tie!':`Player ${state.winner+1} wins. Final scores: ${state.scores.join(' – ')}.`);}catch(e){say(e.message);}}
+function showDialog(title,message){$('dialog-title').textContent=title;$('dialog-message').textContent=message;$('dialog').showModal();}
+$('play').addEventListener('click',()=>{if(!draft.length){say('Place at least one letter first.');return;}commit({kind:'play',placements:draft});});
+$('recall').addEventListener('click',()=>{draft=[];selected=null;render();say('All letters returned to rack.');});
+$('pass').addEventListener('click',()=>{if(confirm('Pass your turn?'))commit({kind:'pass'});});
+$('swap').addEventListener('click',()=>{if(draft.length){say('Recall your placed letters before swapping.');return;}if(!swapping){swapping=true;swapIds.clear();say('Select tiles to swap, then press Swap again.');render();return;}if(!swapIds.size){swapping=false;render();say('Swap canceled.');return;}commit({kind:'swap',tileIds:[...swapIds]});});
+$('shuffle').addEventListener('click',()=>{state.racks[state.turn].sort(()=>Math.random()-.5);persist();render();});
+$('theme').addEventListener('click',()=>{theme=theme==='playful'?'sophisticated':'playful';safeStorage.set(THEME,theme);render();});
+$('rules').addEventListener('click',()=>showDialog('How to play',`Use 7 tiles to build connected horizontal or vertical words on the 15×15 board. First word covers center. DL/TL double/triple a letter; DW/TW double/triple a word. Blank tiles score zero. Use all seven tiles for +40 points. Pass, swap, or play. Demo dictionary: ${dictionarySize} words; incomplete alpha list.`));
+$('reset').addEventListener('click',()=>{if(!confirm('Delete the current local game permanently and start fresh?'))return;safeStorage.remove(STORE);state=createGame();draft=[];selected=null;swapIds.clear();persist();render();say('Local game deleted. New game ready.');});
+$('export').addEventListener('click',()=>{const json=JSON.stringify({exportedAt:new Date().toISOString(),game:state},null,2);const url=URL.createObjectURL(new Blob([json],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='jargon-local-game.json';a.click();URL.revokeObjectURL(url);say('Game exported. The JSON includes both local players’ racks and tile bag. Keep it private.');});
+render();say('Select a tile, then tap the board to place it.');
+if(!safeStorage.set('__jargon_storage_check','1'))say('You can play here, but this file viewer may not save progress. For reliable saving, open Jargon in Safari.');else safeStorage.remove('__jargon_storage_check');
+</script></body></html>
