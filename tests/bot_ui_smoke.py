@@ -47,4 +47,26 @@ with sync_playwright() as p:
         assert not errors,errors
         print(f"PASS {width}x{height}: offline opponent actually takes a legal turn")
         ctx.close()
+    # Production dictionary: a normal nonblank rack must yield a real legal opening.
+    ctx=browser.new_context()
+    page=ctx.new_page()
+    page.set_content(HTML)
+    prod=page.evaluate("""() => {
+      const bag=fullBag('classic'),pick=ch=>bag.find(t=>t.letter===ch);
+      const game=createGame(()=>0.5,DICTIONARY_VERSION,'classic');
+      game.racks[game.turn]=[pick('A'),pick('T'),pick('E'),pick('R'),pick('I'),pick('O'),pick('N')];
+      const before=JSON.stringify(game),began=performance.now();
+      const move=findBotMove(game,w=>validWord(w,DICTIONARY_VERSION),
+        {seed:7,maxTimeMs:300,maxEvaluations:1200});
+      const elapsed=performance.now()-began;
+      const result=move.kind==='play'
+        ?play(game,move,w=>validWord(w,DICTIONARY_VERSION),()=>0.5):null;
+      return {kind:move.kind,elapsed,score:result?.score||0,
+              immutable:before===JSON.stringify(game)};
+    }""")
+    assert prod['kind']=='play' and prod['score']>0, prod
+    assert prod['immutable'],prod
+    assert prod['elapsed']<2500,prod  # Generous Chromium bound, not a physical-device guarantee.
+    print('PASS full offline dictionary bot opening:',prod)
+    ctx.close()
     browser.close()
