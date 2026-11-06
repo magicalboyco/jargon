@@ -42,6 +42,26 @@ with sync_playwright() as p:
         assert page.locator("#draft-preview").get_attribute("data-status")=="valid"
         assert f"{expected} points" in page.locator("#draft-preview").inner_text()
         assert page.evaluate("state.scores[0]===0 && state.board[7][7]===null")
+        # Direction toggle must allow vertical words, not merely horizontal auto-staging.
+        page.evaluate("""() => {
+          state=createGame(()=>0.5,'starter-demo-1','classic');
+          const bag=fullBag('classic');
+          state.racks[0]=[bag.find(t=>t.letter==='A'),bag.find(t=>t.letter==='T'),...bag.filter(t=>t.letter==='E').slice(0,5)];
+          draft=[];selected=null;lastRackTap=null;render();
+        }""")
+        page.locator('[data-placement-direction="vertical"]').click()
+        assert page.locator('[data-placement-direction="vertical"]').get_attribute("aria-pressed")=="true"
+        page.locator("#rack .block").first.click()
+        page.locator("#rack .block").first.click()
+        page.locator("#rack .block").first.click()
+        page.locator("#rack .block").first.click()
+        assert page.evaluate("draft.length===2 && draft[0].row===7 && draft[0].col===7 && draft[1].row===8 && draft[1].col===7")
+        assert page.locator("#draft-preview").get_attribute("data-status")=="valid"
+        assert page.evaluate("state.scores[0]===0")
+        # Manual tile-to-square placement must remain unrestricted regardless of selected direction.
+        page.locator("#rack .block").first.click()
+        page.locator("#board .sq").nth(97).click()
+        assert page.evaluate("draft.some(p=>p.row===6&&p.col===7)")
         assert not errors,errors
         print(f"PASS {width}x{height}: deterministic center/adjacent double-tap, true score preview, no premature commit")
         context.close()
