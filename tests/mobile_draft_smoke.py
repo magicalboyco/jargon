@@ -20,6 +20,13 @@ with sync_playwright() as p:
         assert page.locator("#rack .block").count()==7
         assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
         assert page.locator("#draft-preview").is_visible()
+        # Seed deterministic nonblank rack tiles for drag tests.
+        page.evaluate("""() => {
+          state=createGame(()=>0.5,'starter-demo-1','classic');
+          const bag=fullBag('classic');
+          state.racks[0]=[bag.find(t=>t.letter==='A'),bag.find(t=>t.letter==='T'),...bag.filter(t=>t.letter==='E').slice(0,5)];
+          draft=[];selected=null;lastRackTap=null;render();
+        }""")
         # A real pointer gesture transfers a rack tile to a precise board square,
         # independent of Across/Down, without committing official score.
         rackbox=page.locator("#rack .block").first.bounding_box()
