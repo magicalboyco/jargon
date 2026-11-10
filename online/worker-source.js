@@ -177,7 +177,7 @@ export default {
         if(env.MATCH_CREATION_ENABLED!=='true')return respond(apiError(503,'Invitations are not enabled yet'),origin,503);
         const input=await bodyJson(request);
         const mode=input.mode==='blocks'?'blocks':'classic';
-        const id=secureRandom(),hostKey=secureRandom(),guestKey=secureRandom();
+        const id=secureRandom().slice(0,24),hostKey=secureRandom(),guestKey=secureRandom();
         const stub=env.MATCHES.getByName('jargon:'+id);
         const result=await stub.create({id,mode,hostDigest:await digestToken(hostKey),
           guestDigest:await digestToken(guestKey),hostName:input.name});
