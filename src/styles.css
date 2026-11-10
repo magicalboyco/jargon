@@ -489,3 +489,14 @@ body.playful .rack .block { border-radius: 9px; }
   #hint { font-size: 11px; }
   .controls button { font-size: 12px; }
 }
+
+/* Clear space for the board and primary action on narrow phones.
+   The long rules explanation remains available from the Rules button. */
+@media (max-width: 520px) {
+  .flip-explain { display: none; }
+}
+@media (max-width: 350px) {
+  .rack-area { padding-bottom: 5px; }
+  .rack { margin-bottom: 2px; padding-bottom: 5px; }
+  .top { padding-top: 5px; padding-bottom: 5px; }
+}
