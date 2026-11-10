@@ -62,6 +62,17 @@ jobs:
       - name: Offline bot engine legality and determinism
         run: node tests/bot.test.cjs
 
+      - name: Private multiplayer protocol security and concurrency smoke
+        run: node tests/online_protocol.test.cjs
+
+      - name: Private friend invitation client transport
+        run: node tests/online_client.test.cjs
+
+      - name: Build and check Cloudflare match Worker syntax
+        run: |
+          python online/build.py
+          node --check online/dist/worker.mjs
+
       - name: Offline opponent browser end-to-end
         run: python tests/bot_ui_smoke.py
 
