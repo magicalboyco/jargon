@@ -31,7 +31,7 @@ function validDraft(value,game){
   }
   return value;
 }
-let theme=safeStorage.get(THEME)||'sophisticated',draft=validDraft(saved?.draft,state),selected=null,swapping=false;
+let theme=safeStorage.get(THEME)||'playful',draft=validDraft(saved?.draft,state),selected=null,swapping=false;
 let opponentMode=saved?.opponent==='computer'?'computer':'local';
 let botScheduled=false,botToken=0;
 function persist(){safeStorage.set(STORE,JSON.stringify({version:2,game:state,draft,opponent:opponentMode}));}
@@ -41,10 +41,84 @@ const HAPTICS_KEY='jargon.haptics.v1';
 let hapticsEnabled=safeStorage.get(HAPTICS_KEY)==='on';
 function motionAllowed(){return !window.matchMedia||!matchMedia('(prefers-reduced-motion: reduce)').matches;}
 function haptic(kind){
+  playSoundEffect(kind);
   if(!hapticsEnabled||!motionAllowed()||typeof navigator.vibrate!=='function')return;
   const values={hover:5,tap:7,drop:[12,20,7],flip:10,success:[15,45,22],error:[25,35,25]};
   try{navigator.vibrate(values[kind]||7);}catch(_error){}
 }
+
+/* Original procedural audio. The player opts in; nothing loads over the network.
+   Tiny Web Audio notes and a sparse ambient loop. No prerecorded copyrighted music. */
+let soundEnabled=false, soundContext=null, musicInterval=null, musicStep=0;
+const AudioContextClass=window.AudioContext||window.webkitAudioContext;
+function getSoundContext(){
+  if(!soundEnabled||!AudioContextClass)return null;
+  if(!soundContext){
+    try{soundContext=new AudioContextClass();}catch(_error){return null;}
+  }
+  if(soundContext.state==='suspended')soundContext.resume().catch(()=>{});
+  return soundContext;
+}
+function softNote(frequency, duration=0.3, loudness=0.014, delay=0, wave='sine'){
+  if(!soundEnabled||document.hidden)return;
+  const ctx=getSoundContext();
+  if(!ctx)return;
+  const start=ctx.currentTime+Math.max(0,delay);
+  const osc=ctx.createOscillator(), gain=ctx.createGain();
+  osc.type=wave;
+  osc.frequency.setValueAtTime(frequency,start);
+  gain.gain.setValueAtTime(0.0001,start);
+  gain.gain.exponentialRampToValueAtTime(Math.max(0.0002,loudness),start+0.035);
+  gain.gain.exponentialRampToValueAtTime(0.0001,start+duration);
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start(start);
+  osc.stop(start+duration+0.02);
+}
+function playSoundEffect(kind){
+  if(!soundEnabled||!AudioContextClass)return;
+  if(kind==='hover')return; // No chattering when a tile passes 225 cells.
+  if(kind==='tap')softNote(460,0.075,0.006);
+  else if(kind==='drop'){softNote(392,0.16,0.017);softNote(588,0.18,0.009,0.035);}
+  else if(kind==='flip'){softNote(523,0.18,0.011);softNote(659,0.17,0.007,0.06);}
+  else if(kind==='success'){
+    softNote(392,0.42,0.018);
+    softNote(494,0.39,0.013,0.10);
+    softNote(587,0.42,0.013,0.20);
+  }else if(kind==='error')softNote(261.63,0.13,0.010);
+}
+function ambientPhrase(){
+  if(!soundEnabled||document.hidden)return;
+  // An original, minimal pentatonic-inspired phrase, intentionally quiet.
+  const notes=[293.66,369.99,440,369.99,329.63,293.66,246.94,329.63];
+  const i=musicStep++%notes.length;
+  softNote(notes[i],0.72,0.007,0,'sine');
+  if(i===0||i===4)softNote(i===0?146.83:164.81,1.25,0.004,0,'triangle');
+}
+function setSoundEnabled(enabled){
+  if(enabled&&!AudioContextClass){say('Background audio is not supported in this browser.');return;}
+  soundEnabled=!!enabled;
+  const button=$('audio-toggle');
+  button.setAttribute('aria-pressed',String(soundEnabled));
+  button.setAttribute('aria-label',soundEnabled?'Turn off relaxing background audio':'Turn on relaxing background audio');
+  button.lastElementChild.textContent=soundEnabled?'Sound on':'Sound off';
+  button.firstChild.textContent=soundEnabled?'♫ ':'♪ ';
+  if(musicInterval!==null){window.clearInterval(musicInterval);musicInterval=null;}
+  if(soundEnabled){
+    getSoundContext(); // Called only following a real button gesture.
+    ambientPhrase();
+    musicInterval=window.setInterval(ambientPhrase,2300);
+    say('Gentle background audio is on. Tap the music button to mute.');
+  }else{
+    if(soundContext&&soundContext.state==='running')soundContext.suspend().catch(()=>{});
+    say('Sound is off.');
+  }
+}
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden&&soundContext&&soundContext.state==='running')soundContext.suspend().catch(()=>{});
+  // Do not auto-resume after switching tabs: browsers may require a new gesture.
+});
+
 let dropTile=null,flipTile=null,shuffleMotion=false,pendingScore=null;
 function scoreBurst(points,row,col){
   if(!motionAllowed()||!Number.isFinite(points)||points<=0)return;
@@ -502,6 +576,7 @@ $('game-mode').addEventListener('change',e=>{
   say(mode==='blocks'?'Block Flip started: select a block, then tap ↻ Flip to use its alternate letter.':'Classic game started: no flipped letters.');
 });
 $('shuffle').addEventListener('click',()=>{state.racks[state.turn]=shuffled(state.racks[state.turn],Math.random);shuffleMotion=true;persist();render();haptic('tap');});
+$('audio-toggle').addEventListener('click',()=>setSoundEnabled(!soundEnabled));
 $('theme').addEventListener('click',()=>{theme=theme==='playful'?'sophisticated':'playful';safeStorage.set(THEME,theme);render();});
 $('rules').addEventListener('click',()=>showDialog('How to play',`Classic uses familiar 7-tile word-game rules. Block Flip uses 104 dual-face blocks: select a rack tile and tap Flip to change its alternate face. Use only legal words from the local dictionary.`));
 $('reset').addEventListener('click',()=>{if(!confirm('Delete the current local game permanently and start fresh?'))return;botToken++;botScheduled=false;safeStorage.remove(STORE);state=createGame(Math.random,DICTIONARY_VERSION,state.mode);draft=[];selected=null;cursorTarget=null;swapIds.clear();persist();render();say('A fresh game is ready.');});
