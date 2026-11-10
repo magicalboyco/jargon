@@ -163,6 +163,30 @@ $('board').addEventListener('keydown',event=>{
   else if(event.key==='ArrowRight')next=row*15+Math.min(14,col+1);
   else if(event.key==='Home')next=row*15;
   else if(event.key==='End')next=row*15+14;
+  else if(/^[a-z]$/i.test(event.key)&&!event.altKey&&!event.ctrlKey&&!event.metaKey){
+    // Familiar keyboard entry: type a rack letter into the focused board square.
+    // Keep the same authoritative placement path as touch and mouse input.
+    if(state.finished||swapping||pendingBlank||state.board[row][col]||tileAt(row,col))return;
+    const letter=event.key.toUpperCase();
+    const available=state.racks[state.turn].filter(t=>!draft.some(p=>p.tileId===t.id));
+    const tile=available.find(t=>!t.blank&&tileFace(t)===letter)||available.find(t=>t.blank);
+    event.preventDefault();
+    if(!tile){say('No '+letter+' tile or blank available in your rack.');return;}
+    cursorTarget={row,col};
+    selected=tile.id;
+    // A blank still opens the existing accessible letter-selection dialog.
+    // No new game rules, network requests, or dependencies.
+    if(tile.blank){
+      pendingBlank={row,col};
+      $('blank-letter').value=letter;
+      $('blank-picker').showModal();
+      $('blank-letter').focus();
+    }else{
+      placeSelected(row,col);
+      if(cursorTarget)focusBoardCell(cursorTarget.row*SIZE+cursorTarget.col);
+    }
+    return;
+  }
   else return;
   event.preventDefault();focusBoardCell(next);
 });
