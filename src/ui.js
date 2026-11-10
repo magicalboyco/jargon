@@ -33,6 +33,8 @@ function validDraft(value,game){
 }
 let theme=safeStorage.get(THEME)||'playful',draft=validDraft(saved?.draft,state),selected=null,swapping=false;
 let opponentMode=saved?.opponent==='computer'?'computer':'local';
+const BOT_LEVEL_KEY='jargon.bot.level.v1';
+let botLevel=safeStorage.get(BOT_LEVEL_KEY)==='focused'?'focused':'relaxed';
 let botScheduled=false,botToken=0;
 function persist(){safeStorage.set(STORE,JSON.stringify({version:2,game:state,draft,opponent:opponentMode}));}
 function say(message){$('hint').textContent=message;}
@@ -404,6 +406,8 @@ function render(){
   document.body.classList.toggle('blocks-mode',state.mode==='blocks');
   $('game-mode').value=state.mode;
   $('opponent-mode').value=opponentMode;
+  $('bot-level-wrap').hidden=opponentMode!=='computer';
+  $('bot-level').value=botLevel;
   document.body.classList.toggle('bot-turn',opponentMode==='computer'&&state.turn===1);
   const canFlip=state.mode==='blocks'&&!swapping&&selected!==null&&state.racks[state.turn].some(t=>t.id===selected&&t.alternate&&!t.blank);
   const flipBtn=$('flip');flipBtn.hidden=state.mode!=='blocks';flipBtn.disabled=!canFlip||state.finished;
@@ -507,7 +511,8 @@ function scheduleBotTurn(){
     if(token!==botToken||opponentMode!=='computer'||state.turn!==1||state.finished){botScheduled=false;return;}
     try {
       const check=word=>validWord(word,state.dictionaryVersion||'starter-demo-1');
-      const move=findBotMove(state,check,{difficulty:'beginner',seed:(state.history.length+1)*7919,maxTimeMs:170,maxEvaluations:1800});
+      const focused=botLevel==='focused';
+      const move=findBotMove(state,check,{difficulty:focused?'greedy':'beginner',seed:(state.history.length+1)*7919,maxTimeMs:focused?300:170,maxEvaluations:focused?3500:1800});
       const result=play(state,move,check,()=>0.5);
       state=result.state;
       draft=[];selected=null;swapping=false;swapIds.clear();cursorTarget=null;
@@ -577,6 +582,11 @@ $('game-mode').addEventListener('change',e=>{
 });
 $('shuffle').addEventListener('click',()=>{state.racks[state.turn]=shuffled(state.racks[state.turn],Math.random);shuffleMotion=true;persist();render();haptic('tap');});
 $('audio-toggle').addEventListener('click',()=>setSoundEnabled(!soundEnabled));
+$('bot-level').addEventListener('change',event=>{
+  botLevel=event.target.value==='focused'?'focused':'relaxed';
+  safeStorage.set(BOT_LEVEL_KEY,botLevel);
+  say(botLevel==='focused'?'Focused computer: chooses the strongest move found in a longer search.':'Relaxed computer: prefers more casual moves.');
+});
 $('theme').addEventListener('click',()=>{theme=theme==='playful'?'sophisticated':'playful';safeStorage.set(THEME,theme);render();});
 $('rules').addEventListener('click',()=>showDialog('How to play',`Classic uses familiar 7-tile word-game rules. Block Flip uses 104 dual-face blocks: select a rack tile and tap Flip to change its alternate face. Use only legal words from the local dictionary.`));
 $('reset').addEventListener('click',()=>{if(!confirm('Delete the current local game permanently and start fresh?'))return;botToken++;botScheduled=false;safeStorage.remove(STORE);state=createGame(Math.random,DICTIONARY_VERSION,state.mode);draft=[];selected=null;cursorTarget=null;swapIds.clear();persist();render();say('A fresh game is ready.');});
