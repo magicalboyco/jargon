@@ -500,3 +500,8 @@ body.playful .rack .block { border-radius: 9px; }
   .rack { margin-bottom: 2px; padding-bottom: 5px; }
   .top { padding-top: 5px; padding-bottom: 5px; }
 }
+
+/* Solo play: honest difficulty choice, hidden in pass-and-play. */
+.mode-strip .bot-level { min-width: 0; }
+.mode-strip .bot-level select { max-width: 140px; }
+@media (max-width:520px) { .mode-strip:has(.bot-level:not([hidden])) { flex-wrap:wrap; } .mode-strip .bot-level:not([hidden]) { flex:1 1 100%; font-size:10px; } .mode-strip .bot-level:not([hidden]) select { max-width:150px; } }
