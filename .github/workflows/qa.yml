@@ -67,3 +67,6 @@ jobs:
 
       - name: Rack drag reorder and precision recall
         run: python tests/rack_reorder_smoke.py
+
+      - name: Familiar keyboard entry and precise tile drag
+        run: python tests/familiar_controls_smoke.py

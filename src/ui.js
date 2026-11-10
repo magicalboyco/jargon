@@ -31,8 +31,10 @@ function validDraft(value,game){
   }
   return value;
 }
-let theme=safeStorage.get(THEME)||'sophisticated',draft=validDraft(saved?.draft,state),selected=null,swapping=false;
+let theme=safeStorage.get(THEME)||'playful',draft=validDraft(saved?.draft,state),selected=null,swapping=false;
 let opponentMode=saved?.opponent==='computer'?'computer':'local';
+const BOT_LEVEL_KEY='jargon.bot.level.v1';
+let botLevel=safeStorage.get(BOT_LEVEL_KEY)==='focused'?'focused':'relaxed';
 let botScheduled=false,botToken=0;
 function persist(){safeStorage.set(STORE,JSON.stringify({version:2,game:state,draft,opponent:opponentMode}));}
 function say(message){$('hint').textContent=message;}
@@ -41,10 +43,84 @@ const HAPTICS_KEY='jargon.haptics.v1';
 let hapticsEnabled=safeStorage.get(HAPTICS_KEY)==='on';
 function motionAllowed(){return !window.matchMedia||!matchMedia('(prefers-reduced-motion: reduce)').matches;}
 function haptic(kind){
+  playSoundEffect(kind);
   if(!hapticsEnabled||!motionAllowed()||typeof navigator.vibrate!=='function')return;
   const values={hover:5,tap:7,drop:[12,20,7],flip:10,success:[15,45,22],error:[25,35,25]};
   try{navigator.vibrate(values[kind]||7);}catch(_error){}
 }
+
+/* Original procedural audio. The player opts in; nothing loads over the network.
+   Tiny Web Audio notes and a sparse ambient loop. No prerecorded copyrighted music. */
+let soundEnabled=false, soundContext=null, musicInterval=null, musicStep=0;
+const AudioContextClass=window.AudioContext||window.webkitAudioContext;
+function getSoundContext(){
+  if(!soundEnabled||!AudioContextClass)return null;
+  if(!soundContext){
+    try{soundContext=new AudioContextClass();}catch(_error){return null;}
+  }
+  if(soundContext.state==='suspended')soundContext.resume().catch(()=>{});
+  return soundContext;
+}
+function softNote(frequency, duration=0.3, loudness=0.014, delay=0, wave='sine'){
+  if(!soundEnabled||document.hidden)return;
+  const ctx=getSoundContext();
+  if(!ctx)return;
+  const start=ctx.currentTime+Math.max(0,delay);
+  const osc=ctx.createOscillator(), gain=ctx.createGain();
+  osc.type=wave;
+  osc.frequency.setValueAtTime(frequency,start);
+  gain.gain.setValueAtTime(0.0001,start);
+  gain.gain.exponentialRampToValueAtTime(Math.max(0.0002,loudness),start+0.035);
+  gain.gain.exponentialRampToValueAtTime(0.0001,start+duration);
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start(start);
+  osc.stop(start+duration+0.02);
+}
+function playSoundEffect(kind){
+  if(!soundEnabled||!AudioContextClass)return;
+  if(kind==='hover')return; // No chattering when a tile passes 225 cells.
+  if(kind==='tap')softNote(460,0.075,0.006);
+  else if(kind==='drop'){softNote(392,0.16,0.017);softNote(588,0.18,0.009,0.035);}
+  else if(kind==='flip'){softNote(523,0.18,0.011);softNote(659,0.17,0.007,0.06);}
+  else if(kind==='success'){
+    softNote(392,0.42,0.018);
+    softNote(494,0.39,0.013,0.10);
+    softNote(587,0.42,0.013,0.20);
+  }else if(kind==='error')softNote(261.63,0.13,0.010);
+}
+function ambientPhrase(){
+  if(!soundEnabled||document.hidden)return;
+  // An original, minimal pentatonic-inspired phrase, intentionally quiet.
+  const notes=[293.66,369.99,440,369.99,329.63,293.66,246.94,329.63];
+  const i=musicStep++%notes.length;
+  softNote(notes[i],0.72,0.007,0,'sine');
+  if(i===0||i===4)softNote(i===0?146.83:164.81,1.25,0.004,0,'triangle');
+}
+function setSoundEnabled(enabled){
+  if(enabled&&!AudioContextClass){say('Background audio is not supported in this browser.');return;}
+  soundEnabled=!!enabled;
+  const button=$('audio-toggle');
+  button.setAttribute('aria-pressed',String(soundEnabled));
+  button.setAttribute('aria-label',soundEnabled?'Turn off relaxing background audio':'Turn on relaxing background audio');
+  button.lastElementChild.textContent=soundEnabled?'Sound on':'Sound off';
+  button.firstChild.textContent=soundEnabled?'♫ ':'♪ ';
+  if(musicInterval!==null){window.clearInterval(musicInterval);musicInterval=null;}
+  if(soundEnabled){
+    getSoundContext(); // Called only following a real button gesture.
+    ambientPhrase();
+    musicInterval=window.setInterval(ambientPhrase,2300);
+    say('Gentle background audio is on. Tap the music button to mute.');
+  }else{
+    if(soundContext&&soundContext.state==='running')soundContext.suspend().catch(()=>{});
+    say('Sound is off.');
+  }
+}
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden&&soundContext&&soundContext.state==='running')soundContext.suspend().catch(()=>{});
+  // Do not auto-resume after switching tabs: browsers may require a new gesture.
+});
+
 let dropTile=null,flipTile=null,shuffleMotion=false,pendingScore=null;
 function scoreBurst(points,row,col){
   if(!motionAllowed()||!Number.isFinite(points)||points<=0)return;
@@ -163,6 +239,30 @@ $('board').addEventListener('keydown',event=>{
   else if(event.key==='ArrowRight')next=row*15+Math.min(14,col+1);
   else if(event.key==='Home')next=row*15;
   else if(event.key==='End')next=row*15+14;
+  else if(/^[a-z]$/i.test(event.key)&&!event.altKey&&!event.ctrlKey&&!event.metaKey){
+    // Familiar keyboard entry: type a rack letter into the focused board square.
+    // Keep the same authoritative placement path as touch and mouse input.
+    if(state.finished||swapping||pendingBlank||state.board[row][col]||tileAt(row,col))return;
+    const letter=event.key.toUpperCase();
+    const available=state.racks[state.turn].filter(t=>!draft.some(p=>p.tileId===t.id));
+    const tile=available.find(t=>!t.blank&&tileFace(t)===letter)||available.find(t=>t.blank);
+    event.preventDefault();
+    if(!tile){say('No '+letter+' tile or blank available in your rack.');return;}
+    cursorTarget={row,col};
+    selected=tile.id;
+    // A blank still opens the existing accessible letter-selection dialog.
+    // No new game rules, network requests, or dependencies.
+    if(tile.blank){
+      pendingBlank={row,col};
+      $('blank-letter').value=letter;
+      $('blank-picker').showModal();
+      $('blank-letter').focus();
+    }else{
+      placeSelected(row,col);
+      if(cursorTarget)focusBoardCell(cursorTarget.row*SIZE+cursorTarget.col);
+    }
+    return;
+  }
   else return;
   event.preventDefault();focusBoardCell(next);
 });
@@ -175,7 +275,7 @@ function startTileDrag(event,tileId,source){
   const tile=state.racks[state.turn].find(t=>t.id===tileId);
   if(!tile)return;
   const startX=event.clientX,startY=event.clientY,origin=event.currentTarget;
-  const drag={pointerId:event.pointerId,tileId,source,origin,startX,startY,active:false,ghost:null,target:null,rackTarget:null,frame:0,point:null};
+  const drag={pointerId:event.pointerId,tileId,source,origin,startX,startY,pointerType:event.pointerType,active:false,ghost:null,ghostWidth:0,ghostHeight:0,target:null,rackTarget:null,frame:0,point:null};
   if(origin.setPointerCapture){try{origin.setPointerCapture(event.pointerId);}catch(_error){/* Unsupported or invalid pointer: window handlers still cover it. */}}
   tileDrag=drag;
   const locate=(x,y)=>{
@@ -205,6 +305,8 @@ function startTileDrag(event,tileId,source){
       drag.ghost=block(tile,'tile-drag-ghost');
       drag.ghost.setAttribute('aria-hidden','true');
       const bounds=origin.getBoundingClientRect();
+      drag.ghostWidth=bounds.width;
+      drag.ghostHeight=bounds.height;
       drag.ghost.style.width=bounds.width+'px';
       drag.ghost.style.height=bounds.height+'px';
       document.body.append(drag.ghost);
@@ -216,7 +318,15 @@ function startTileDrag(event,tileId,source){
       drag.frame=0;
       if(tileDrag!==drag||!drag.point)return;
       const {x,y}=drag.point;
-      if(drag.ghost)drag.ghost.style.transform='translate3d('+(x-20)+'px,'+(y-62)+'px,0) scale(1.12)';
+      // Pointer coordinates select the actual drop square. Only the visual tile is
+      // lifted above a finger so the player can see the board underneath.
+      // Never use magic pixel offsets: rack and board tiles differ in size.
+      if(drag.ghost){
+        const touch=drag.pointerType==='touch';
+        const left=x-drag.ghostWidth/2;
+        const top=touch?y-drag.ghostHeight-14:y-drag.ghostHeight/2;
+        drag.ghost.style.transform='translate3d('+left+'px,'+top+'px,0) scale(1.08)';
+      }
       paintTarget(locate(x,y));
       const rackHover=document.elementFromPoint(x,y)?.closest('#rack')||null;
       if(drag.rackTarget!==rackHover){
@@ -296,6 +406,8 @@ function render(){
   document.body.classList.toggle('blocks-mode',state.mode==='blocks');
   $('game-mode').value=state.mode;
   $('opponent-mode').value=opponentMode;
+  $('bot-level-wrap').hidden=opponentMode!=='computer';
+  $('bot-level').value=botLevel;
   document.body.classList.toggle('bot-turn',opponentMode==='computer'&&state.turn===1);
   const canFlip=state.mode==='blocks'&&!swapping&&selected!==null&&state.racks[state.turn].some(t=>t.id===selected&&t.alternate&&!t.blank);
   const flipBtn=$('flip');flipBtn.hidden=state.mode!=='blocks';flipBtn.disabled=!canFlip||state.finished;
@@ -399,7 +511,8 @@ function scheduleBotTurn(){
     if(token!==botToken||opponentMode!=='computer'||state.turn!==1||state.finished){botScheduled=false;return;}
     try {
       const check=word=>validWord(word,state.dictionaryVersion||'starter-demo-1');
-      const move=findBotMove(state,check,{difficulty:'beginner',seed:(state.history.length+1)*7919,maxTimeMs:170,maxEvaluations:1800});
+      const focused=botLevel==='focused';
+      const move=findBotMove(state,check,{difficulty:focused?'greedy':'beginner',seed:(state.history.length+1)*7919,maxTimeMs:focused?300:170,maxEvaluations:focused?3500:1800});
       const result=play(state,move,check,()=>0.5);
       state=result.state;
       draft=[];selected=null;swapping=false;swapIds.clear();cursorTarget=null;
@@ -468,6 +581,12 @@ $('game-mode').addEventListener('change',e=>{
   say(mode==='blocks'?'Block Flip started: select a block, then tap ↻ Flip to use its alternate letter.':'Classic game started: no flipped letters.');
 });
 $('shuffle').addEventListener('click',()=>{state.racks[state.turn]=shuffled(state.racks[state.turn],Math.random);shuffleMotion=true;persist();render();haptic('tap');});
+$('audio-toggle').addEventListener('click',()=>setSoundEnabled(!soundEnabled));
+$('bot-level').addEventListener('change',event=>{
+  botLevel=event.target.value==='focused'?'focused':'relaxed';
+  safeStorage.set(BOT_LEVEL_KEY,botLevel);
+  say(botLevel==='focused'?'Focused computer: chooses the strongest move found in a longer search.':'Relaxed computer: prefers more casual moves.');
+});
 $('theme').addEventListener('click',()=>{theme=theme==='playful'?'sophisticated':'playful';safeStorage.set(THEME,theme);render();});
 $('rules').addEventListener('click',()=>showDialog('How to play',`Classic uses familiar 7-tile word-game rules. Block Flip uses 104 dual-face blocks: select a rack tile and tap Flip to change its alternate face. Use only legal words from the local dictionary.`));
 $('reset').addEventListener('click',()=>{if(!confirm('Delete the current local game permanently and start fresh?'))return;botToken++;botScheduled=false;safeStorage.remove(STORE);state=createGame(Math.random,DICTIONARY_VERSION,state.mode);draft=[];selected=null;cursorTarget=null;swapIds.clear();persist();render();say('A fresh game is ready.');});
