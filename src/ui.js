@@ -199,7 +199,7 @@ function startTileDrag(event,tileId,source){
   const tile=state.racks[state.turn].find(t=>t.id===tileId);
   if(!tile)return;
   const startX=event.clientX,startY=event.clientY,origin=event.currentTarget;
-  const drag={pointerId:event.pointerId,tileId,source,origin,startX,startY,active:false,ghost:null,target:null,rackTarget:null,frame:0,point:null};
+  const drag={pointerId:event.pointerId,tileId,source,origin,startX,startY,pointerType:event.pointerType,active:false,ghost:null,ghostWidth:0,ghostHeight:0,target:null,rackTarget:null,frame:0,point:null};
   if(origin.setPointerCapture){try{origin.setPointerCapture(event.pointerId);}catch(_error){/* Unsupported or invalid pointer: window handlers still cover it. */}}
   tileDrag=drag;
   const locate=(x,y)=>{
@@ -229,6 +229,8 @@ function startTileDrag(event,tileId,source){
       drag.ghost=block(tile,'tile-drag-ghost');
       drag.ghost.setAttribute('aria-hidden','true');
       const bounds=origin.getBoundingClientRect();
+      drag.ghostWidth=bounds.width;
+      drag.ghostHeight=bounds.height;
       drag.ghost.style.width=bounds.width+'px';
       drag.ghost.style.height=bounds.height+'px';
       document.body.append(drag.ghost);
@@ -240,7 +242,15 @@ function startTileDrag(event,tileId,source){
       drag.frame=0;
       if(tileDrag!==drag||!drag.point)return;
       const {x,y}=drag.point;
-      if(drag.ghost)drag.ghost.style.transform='translate3d('+(x-20)+'px,'+(y-62)+'px,0) scale(1.12)';
+      // Pointer coordinates select the actual drop square. Only the visual tile is
+      // lifted above a finger so the player can see the board underneath.
+      // Never use magic pixel offsets: rack and board tiles differ in size.
+      if(drag.ghost){
+        const touch=drag.pointerType==='touch';
+        const left=x-drag.ghostWidth/2;
+        const top=touch?y-drag.ghostHeight-14:y-drag.ghostHeight/2;
+        drag.ghost.style.transform='translate3d('+left+'px,'+top+'px,0) scale(1.08)';
+      }
       paintTarget(locate(x,y));
       const rackHover=document.elementFromPoint(x,y)?.closest('#rack')||null;
       if(drag.rackTarget!==rackHover){
