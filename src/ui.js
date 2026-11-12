@@ -37,7 +37,18 @@ const BOT_LEVEL_KEY='jargon.bot.level.v1';
 let botLevel=safeStorage.get(BOT_LEVEL_KEY)==='focused'?'focused':'relaxed';
 let botScheduled=false,botToken=0;
 function persist(){safeStorage.set(STORE,JSON.stringify({version:2,game:state,draft,opponent:opponentMode}));}
-function say(message){$('hint').textContent=message;}
+function say(message){
+  $('hint').textContent=message;
+  // The live region remains available to assistive technology. Mobile gets a
+  // transient visual acknowledgement rather than a permanent instruction wall.
+  if(window.matchMedia('(max-width:600px)').matches && !/^Drag letters onto|^Select a tile, then tap/.test(message)){
+    const toast=$('mobile-toast');
+    toast.textContent=message;
+    toast.classList.add('visible');
+    window.clearTimeout(say.toastTimer);
+    say.toastTimer=window.setTimeout(()=>toast.classList.remove('visible'),2400);
+  }
+}
 
 const HAPTICS_KEY='jargon.haptics.v1';
 let hapticsEnabled=safeStorage.get(HAPTICS_KEY)==='on';
@@ -408,6 +419,8 @@ function render(){
   $('opponent-mode').value=opponentMode;
   $('bot-level-wrap').hidden=opponentMode!=='computer';
   $('bot-level').value=botLevel;
+  const modeLabel=$('mobile-game-type');
+  if(modeLabel)modeLabel.textContent=(state.mode==='blocks'?'Block Flip':'Classic')+' · '+(opponentMode==='computer'?'Computer':'Pass & Play');
   document.body.classList.toggle('bot-turn',opponentMode==='computer'&&state.turn===1);
   const canFlip=state.mode==='blocks'&&!swapping&&selected!==null&&state.racks[state.turn].some(t=>t.id===selected&&t.alternate&&!t.blank);
   const flipBtn=$('flip');flipBtn.hidden=state.mode!=='blocks';flipBtn.disabled=!canFlip||state.finished;
@@ -612,5 +625,62 @@ $('import-file').addEventListener('change',async e=>{
   }catch(error){say('Import failed: '+error.message);}finally{e.target.value='';}
 });
 $('export').addEventListener('click',()=>{const json=JSON.stringify({version:2,exportedAt:new Date().toISOString(),game:state,draft,opponent:opponentMode},null,2);const url=URL.createObjectURL(new Blob([json],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='jargon-save.json';a.click();URL.revokeObjectURL(url);say('Game exported as JSON.');});
+
+/* Mobile interface: move the exact existing game selectors into a modal sheet.
+   No duplicated state or reimplemented game settings. */
+const mobileMedia=window.matchMedia('(max-width:600px)');
+const mobileMenu=$('mobile-menu'),mobileSettingsButton=$('mobile-settings');
+const modeStrip=$('mode-strip'),mobileModeSlot=$('mobile-mode-slot');
+function syncMobileLayout(){
+  if(mobileMedia.matches){
+    if(modeStrip.parentElement!==mobileModeSlot)mobileModeSlot.append(modeStrip);
+  } else {
+    if(mobileMenu.open)mobileMenu.close();
+    const shell=document.querySelector('.shell');
+    if(modeStrip.parentElement!==shell)shell.insertBefore(modeStrip,document.querySelector('main'));
+  }
+}
+function updateMobileSound(){
+  $('mobile-audio').setAttribute('aria-pressed',String(soundEnabled));
+  $('mobile-audio-label').textContent='Relaxing sound: '+(soundEnabled?'On':'Off');
+}
+function closeMobileMenu(restoreFocus=true){
+  if(mobileMenu.open)mobileMenu.close();
+  if(restoreFocus&&mobileMedia.matches)mobileSettingsButton.focus({preventScroll:true});
+}
+mobileSettingsButton.addEventListener('click',()=>{
+  syncMobileLayout();
+  updateMobileSound();
+  mobileMenu.showModal();
+  mobileSettingsButton.setAttribute('aria-expanded','true');
+  $('mobile-menu-close').focus({preventScroll:true});
+});
+mobileMenu.addEventListener('close',()=>{
+  mobileSettingsButton.setAttribute('aria-expanded','false');
+});
+$('mobile-menu-close').addEventListener('click',()=>closeMobileMenu());
+$('mobile-audio').addEventListener('click',()=>{
+  $('audio-toggle').click();
+  updateMobileSound();
+});
+$('mobile-theme').addEventListener('click',()=>{
+  $('theme').click();
+  $('mobile-theme').querySelector('span').textContent='Appearance: '+(theme==='playful'?'Playful':'Sophisticated');
+});
+$('mobile-rules').addEventListener('click',()=>{
+  closeMobileMenu(false);
+  $('rules').click();
+});
+for(const [mobile,desktop] of [['mobile-export','export'],['mobile-import','import'],['mobile-reset','reset']]){
+  $(mobile).addEventListener('click',()=>{
+    closeMobileMenu(false);
+    $(desktop).click();
+  });
+}
+if(mobileMedia.addEventListener)mobileMedia.addEventListener('change',syncMobileLayout);
+else window.addEventListener('resize',syncMobileLayout);
+syncMobileLayout();
+updateMobileSound();
+
 render();document.body.classList.add('js-ready');say(opponentMode==='computer'?'Play a word to take on the computer.':'Drag letters onto the board, or tap to place them.');if(opponentMode==='computer'&&state.turn===1)scheduleBotTurn();
 if(!safeStorage.set('__jargon_storage_check','1'))say('You can play here, but this file viewer may not save progress. For reliable saving, open Jargon in Safari.');else safeStorage.remove('__jargon_storage_check');
