@@ -578,7 +578,7 @@ body.playful .rack .block { border-radius: 9px; }
 .game-options-actions .danger { color:#9B2843; }
 footer { width:min(100%,1098px); margin:auto; font-size:11px; }
 @media(min-width:1050px) {
-  .game { max-width:none; display:grid; grid-template-columns:minmax(0,660px) minmax(0,438px); grid-template-rows:auto 1fr; }
+  .game { max-width:none; display:grid; grid-template-columns:minmax(0,3fr) minmax(355px,2fr); grid-template-rows:auto 1fr; }
   .scorebar { grid-column:1/-1; }
   .board-wrap { grid-column:1; grid-row:2; border-bottom:0; }
   .rack-area { grid-column:2; grid-row:2; padding:22px 22px 18px; border-left:1px solid #E7DAC5; }
