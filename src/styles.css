@@ -778,3 +778,17 @@ footer { width:min(100%,1098px); margin:auto; font-size:11px; }
 @media (prefers-reduced-motion:reduce) {
   .mobile-sheet[open] {animation:none!important;}
 }
+
+
+.mobile-toast {display:none;}
+@media(max-width:600px){
+  .mobile-toast { display:block;position:fixed;z-index:40;pointer-events:none;top:calc(max(8px,env(safe-area-inset-top)) + 68px);
+    left:50%;transform:translate(-50%,-9px);opacity:0;transition:opacity .18s ease,transform .18s ease;
+    width:max-content;max-width:min(90vw,410px);padding:10px 13px;border-radius:13px;
+    background:#302C53;color:#FFFFFF;font-size:12px;line-height:1.4;font-weight:700;
+    box-shadow:0 8px 26px #1D174B4D;text-align:center; }
+  .mobile-toast.visible {opacity:1;transform:translate(-50%,0);}
+}
+@media(prefers-reduced-motion:reduce){
+  .mobile-toast {transition:none!important;}
+}
