@@ -624,3 +624,27 @@ footer { width:min(100%,1098px); margin:auto; font-size:11px; }
 @media(prefers-reduced-motion:reduce) {
   .block, .controls button { transition:none!important; }
 }
+
+
+/* Compact phone: one predictable action row preserves board visibility and 44px targets. */
+@media (max-width:520px) {
+  .rack-area { padding:5px 7px 7px; }
+  .rack { margin:2px auto 4px; padding:5px 5px 6px; }
+  .feedback-area { gap:2px; }
+  .draft-preview { min-height:27px; padding:4px 7px; }
+  .hint { line-height:1.2; }
+  .controls { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)) minmax(94px,1.3fr); gap:4px; margin-top:3px; }
+  .controls .utility-actions { display:contents; }
+  .controls .primary { grid-column:4;grid-row:1; min-height:46px; font-size:13px; padding:4px; }
+  .controls .utility-actions button { min-height:46px; font-size:11px; padding:4px; }
+  .controls #recall { grid-column:1; grid-row:1; }
+  .controls #pass { grid-column:2; grid-row:1; }
+  .controls #swap { grid-column:3; grid-row:1; }
+}
+@media (min-width:880px) and (max-height:850px) {
+  .game { display:grid; max-width:none; grid-template-columns:minmax(0,3fr) minmax(0,2fr); grid-template-rows:auto 1fr; }
+  .scorebar { grid-column:1/-1; }
+  .board-wrap { grid-column:1; grid-row:2; }
+  .rack-area { grid-column:2; grid-row:2; border-left:1px solid #E7DAC5; }
+  .play-history { margin-top:auto; }
+}
