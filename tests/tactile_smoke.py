@@ -22,7 +22,9 @@ with sync_playwright() as p:
         assert page.locator("#rack .block").count()==7
         assert page.evaluate("document.documentElement.scrollWidth<=innerWidth")
         assert page.locator(".score-pop").count()==0
-        page.locator("#rack .block").first.click()
+        nonblank=page.evaluate("state.racks[state.turn].findIndex(t=>!t.blank)")
+        assert nonblank>=0
+        page.locator("#rack .block").nth(nonblank).click()
         page.locator("#board .sq").nth(112).click()
         assert page.locator("#board .block").count()==1
         assert page.locator(".sq .is-dropping").count()==1
