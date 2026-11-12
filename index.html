@@ -652,6 +652,136 @@ footer { width:min(100%,1098px); margin:auto; font-size:11px; }
   .rack-area { grid-column:2; grid-row:2; border-left:1px solid #E7DAC5; }
   .play-history { margin-top:auto; }
 }
+
+
+/* JARGON V11 — phone-first app shell, built on the existing tested game.
+   Only appearance and presentation change; core scoring and touch handling stay shared. */
+.mobile-brand,.mobile-settings,.mobile-sheet { display:none; }
+.mobile-sheet[open] { display:block; }
+.mobile-sheet::backdrop { background:rgba(21,25,58,.44); backdrop-filter:blur(5px); }
+@media (max-width:600px) {
+  html,body { width:100%; overscroll-behavior-y:contain; }
+  body { background:#FFF9ED; }
+  .shell { width:100%; max-width:none; margin:0; padding:0; }
+  .top { position:relative; z-index:20; width:100%; min-height:64px;
+    margin:0; padding: max(8px,env(safe-area-inset-top)) max(14px,env(safe-area-inset-right)) 9px max(14px,env(safe-area-inset-left));
+    border:0; border-radius:0; box-shadow:0 4px 20px #17277A18;
+    background:linear-gradient(115deg,#3965E8,#2A4AC5 72%,#283C99); }
+  .top .eyebrow,.top .brand-tiles { display:none!important; }
+  .top .brand-wordmark { margin:0; }
+  .mobile-brand { display:flex; gap:9px; align-items:center; }
+  .mobile-mark { display:grid;place-items:center;flex:none;width:39px;height:41px;
+    border:2px solid #F7C944;border-radius:12px;color:#2B3E9F;background:#FFF3BC;
+    font:900 30px/1 var(--display);transform:rotate(-6deg);
+    box-shadow:1px 3px 0 #C99728; }
+  .mobile-brand-copy { display:flex;flex-direction:column;align-items:flex-start;
+    color:#FFFFFF;font:900 25px/.98 var(--display);letter-spacing:-.06em; }
+  .brand-dot { display:inline;color:#FFCC4E; }
+  .mobile-brand-copy small { display:block;margin-top:6px;color:#DCE6FF;
+    font:650 10px/1.2 var(--ui);letter-spacing:0; }
+  .top-actions { margin-left:auto;gap:4px; }
+  .top-actions #audio-toggle,.top-actions #theme,.top-actions #rules { display:none; }
+  .mobile-settings { display:flex;align-items:center;justify-content:center; flex:none;
+    min-width:45px; min-height:45px; border-radius:14px;background:#FFFFFF21;
+    color:white;font-size:23px;border:1px solid #FFFFFF45;padding:0 9px; }
+  .mode-strip { display:none; }
+  main { margin:0;padding:0; }
+  .game-layout { display:block!important;width:100%;max-width:none;margin:0; }
+  .game { width:100%;max-width:none!important; display:flex!important;flex-direction:column;
+    border:0!important;border-radius:0!important;box-shadow:none!important;
+    background:#FFF9ED;overflow:visible; }
+  .scorebar { flex:none;position:relative;order:0;display:grid;grid-template-columns:1fr minmax(92px,1.1fr) 1fr;
+    gap:7px;min-height:63px;padding:7px 11px; border-bottom:1px solid #E9DDC8;
+    background:#FFF9ED; }
+  .player { min-height:49px;border-radius:14px;gap:1px;padding:4px 2px;
+    background:transparent;opacity:1; }
+  .player.active { background:#FFF0C3; border:1px solid #F0C353;box-shadow:inset 0 0 0 1px #FFFFFF66; }
+  .player-label { font-size:9px;letter-spacing:.075em;color:#565372; }
+  .player strong { font-size:25px; color:#242441; font-variant-numeric:tabular-nums; }
+  .turn-center { font-size:11px;color:#3655B5;line-height:1.3; }
+  .turn-center small { margin-top:3px;font-size:10px;color:#74707E; }
+  .board-wrap { order:1;width:100%;padding:5px max(5px,env(safe-area-inset-right)) 5px max(5px,env(safe-area-inset-left));
+    background:linear-gradient(180deg,#DCC3A0,#C6A077); border:0;border-radius:0;
+    box-shadow:inset 0 2px 4px #62432833; }
+  .board { width:100%;max-width:100%;aspect-ratio:1;gap:1px;padding:2px;border-radius:6px; }
+  .sq { border-radius:2px; }
+  .sq .bonus { font-size:clamp(7px,2.1vw,11px); }
+  .sq .block .face { font-size:clamp(10px,3.2vw,17px); }
+  .rack-area { order:2;position:sticky;bottom:0;z-index:14;
+    padding:9px max(10px,env(safe-area-inset-right)) max(10px,env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left));
+    background:linear-gradient(180deg,#FFFDF9 0%,#FFF9EF 100%);
+    border:0;border-top:1px solid #ECD9BC;border-radius:20px 20px 0 0;
+    box-shadow:0 -9px 26px #3B335528;gap:0; }
+  .rack-heading {display:flex;flex-wrap:nowrap;gap:5px;align-items:center;min-height:39px; }
+  .rack-label { display:none; }
+  .rack-heading .placement-direction {flex:1 1 auto;max-width:none;min-width:0;gap:4px;}
+  .rack-heading .direction-button { min-width:0;min-height:39px; padding:5px 8px;
+    background:#EEF0FC;border:1px solid #D6DAEE;border-radius:12px;
+    color:#4B5589;font-weight:800;font-size:12px; }
+  .rack-heading .direction-button.active { background:#3159D9;color:white;border-color:#2442A2; }
+  .rack-heading .rack-tools { flex:none; }
+  .rack-heading #shuffle { min-height:39px; padding:4px 7px; color:#3050BC;font-size:11px; }
+  .rack-heading #flip { min-height:39px; }
+  .rack {margin:6px auto 8px;max-width:100%;padding:7px 7px 9px;gap:4px;border-radius:14px;
+    background:linear-gradient(180deg,#F0D7AE,#D6AE7B);
+    box-shadow:inset 0 2px 3px #88593F33,0 3px 0 #B98D5D; }
+  .rack .block {flex:0 1 calc((100% - 24px)/7);max-width:none; border-radius:8px;}
+  .rack .block .face { font-size:clamp(20px,6.1vw,29px); }
+  .feedback-area {display:flex;gap:0;margin-bottom:5px; }
+  .draft-preview { min-height:28px; padding:5px 7px;border-radius:9px;margin:0;
+    font-size:11px;line-height:1.25; }
+  .hint { position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden;
+    clip-path:inset(50%);font-size:12px; }
+  .controls { display:grid;grid-template-columns:1fr;gap:6px;margin:0; }
+  .controls .primary {grid-column:1;grid-row:1;width:100%;min-height:48px;
+    padding:8px 14px;border-radius:13px;font-size:15px;background:linear-gradient(#416CF1,#2F56D7); }
+  .controls .primary:disabled { opacity:.59; }
+  .controls .utility-actions {display:grid;grid-column:1;grid-row:2;
+    grid-template-columns:repeat(3,minmax(0,1fr));gap:6px; }
+  .controls .utility-actions button {grid-column:auto!important;grid-row:auto!important;min-height:40px;
+    background:#F4EDE4;border:1px solid #E6D8C7;border-radius:11px;
+    color:#554B5A;font-size:12px;font-weight:750;box-shadow:none; }
+  .play-intro,.play-history,.game-options,footer { display:none!important; }
+  .mobile-sheet { box-sizing:border-box; width:100%; max-width:none; max-height:min(90dvh,730px);
+    position:fixed;inset:auto 0 0 0;margin:0;padding:14px 20px max(22px,env(safe-area-inset-bottom));
+    border:0;border-radius:26px 26px 0 0;background:#FFFAF0;
+    color:#29273D;box-shadow:0 -16px 46px #0D16414D;overflow-y:auto; }
+  .mobile-sheet[open] { display:block; animation:jargon-sheet-in 220ms cubic-bezier(.2,.8,.2,1); }
+  .sheet-grabber { width:41px;height:5px;background:#D7C9BA;border-radius:5px;margin:0 auto 16px; }
+  .sheet-heading {display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:17px;}
+  .sheet-heading h2 {font-size:26px;line-height:1.1;margin:5px 0 0;color:#282541; }
+  .sheet-eyebrow,.sheet-section-title {font-size:10px;font-weight:900;letter-spacing:.13em;color:#5C62A0;}
+  .sheet-close {display:grid;place-items:center;width:44px;height:44px;border:0;border-radius:50%;
+    background:#EEE9E3;color:#38354A;font-size:28px;}
+  .mobile-mode-slot .mode-strip {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;
+    padding:0;margin:0 0 18px;border:0;background:transparent; }
+  .mobile-mode-slot .mode-picker {display:flex;flex-direction:column;align-items:stretch;gap:5px;
+    font-size:11px;color:#4A4460;letter-spacing:.04em;font-weight:900; }
+  .mobile-mode-slot .mode-picker select {width:100%;max-width:100%;min-height:46px;
+    padding:9px 12px;border-radius:12px;background:white;color:#27273E;font-size:14px;border:1px solid #DCCFBB;}
+  .mobile-mode-slot .bot-level:not([hidden]) {grid-column:1/-1;}
+  .mobile-mode-slot .bot-level[hidden] {display:none!important;}
+  .sheet-section-title {margin:16px 0 7px;}
+  .sheet-actions {display:grid;gap:7px;}
+  .sheet-actions button {min-height:48px;border-radius:13px;border:1px solid #E5D8C7;background:white;
+    color:#343049;font-weight:750;font-size:14px;text-align:left;padding:10px 14px;}
+  .sheet-actions .danger {color:#A22B47;}
+  .sheet-privacy { font-size:12px;line-height:1.6;color:#6A6470;margin:14px 0 0; }
+  @keyframes jargon-sheet-in {from{transform:translateY(25px);opacity:.78}to{transform:translateY(0);opacity:1}}
+}
+@media (max-width:600px) and (max-height:700px) {
+  .top { min-height:57px;padding-top:max(4px,env(safe-area-inset-top));padding-bottom:4px;}
+  .scorebar { min-height:54px;padding:5px 10px; }
+  .player { min-height:43px; }
+  .rack-area {padding-top:6px;}
+  .rack-heading .direction-button,.rack-heading #shuffle { min-height:35px; }
+  .rack {margin:3px auto 5px;padding:5px 6px 7px;}
+  .controls .utility-actions button {min-height:36px;}
+  .controls .primary {min-height:44px;}
+}
+@media (prefers-reduced-motion:reduce) {
+  .mobile-sheet[open] {animation:none!important;}
+}
 </style></head>
 <body><div class="shell">
 <header class="top"><div><div class="eyebrow">YOUR WORDS. YOUR GAME.</div><h1 class="brand-wordmark" aria-label="Jargon"><span class="mobile-brand" aria-hidden="true"><span class="mobile-mark">J</span><span class="mobile-brand-copy">jargon<span class="brand-dot">.</span><small id="mobile-game-type">Classic · Pass &amp; Play</small></span></span><span class="brand-tiles" aria-hidden="true"><span>J</span><span>A</span><span>R</span><span>G</span><span>O</span><span>N</span></span></h1></div><div class="top-actions"><button id="audio-toggle" class="icon-button sound-button" type="button" aria-label="Enable relaxing background music and gentle tile sounds" aria-pressed="false">♫ <span>Sound off</span></button><button id="theme" class="icon-button" type="button" aria-label="Switch visual style">◧ <span>Playful</span></button><button id="rules" class="icon-button" type="button">ⓘ <span>Rules</span></button><button id="mobile-settings" class="icon-button mobile-settings" type="button" aria-label="Game settings" aria-haspopup="dialog" aria-expanded="false" aria-controls="mobile-menu"><span aria-hidden="true">☰</span></button></div></header>
