@@ -21,7 +21,13 @@ with sync_playwright() as p:
         page.on("pageerror",lambda e:errors.append(str(e)))
         page.set_content(HTML)
         for theme in ("sophisticated","playful"):
-            if theme=="playful": page.locator("#theme").click()
+            if theme=="playful":
+                if width<=600:
+                    page.locator("#mobile-settings").click()
+                    page.locator("#mobile-theme").click()
+                    page.locator("#mobile-menu-close").click()
+                else:
+                    page.locator("#theme").click()
             metrics=page.evaluate("""() => {
               const controls=document.querySelector('.controls').getBoundingClientRect();
               const board=document.querySelector('#board').getBoundingClientRect();

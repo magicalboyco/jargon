@@ -41,6 +41,9 @@ jobs:
       - name: Premium responsive play surface and options checks
         run: python tests/premium_layout_smoke.py
 
+      - name: Mobile-native app shell, modal settings and tile placement
+        run: python tests/mobile_shell_smoke.py
+
       - name: ENABLE2K dictionary and legacy compatibility
         run: python tests/dictionary_smoke.py
       - name: Self-hosted Fraunces and mobile screenshots

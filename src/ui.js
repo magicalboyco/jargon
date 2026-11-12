@@ -37,7 +37,18 @@ const BOT_LEVEL_KEY='jargon.bot.level.v1';
 let botLevel=safeStorage.get(BOT_LEVEL_KEY)==='focused'?'focused':'relaxed';
 let botScheduled=false,botToken=0;
 function persist(){safeStorage.set(STORE,JSON.stringify({version:2,game:state,draft,opponent:opponentMode}));}
-function say(message){$('hint').textContent=message;}
+function say(message){
+  $('hint').textContent=message;
+  // The live region remains available to assistive technology. Mobile gets a
+  // transient visual acknowledgement rather than a permanent instruction wall.
+  if(window.matchMedia('(max-width:600px)').matches && !/^Drag letters onto|^Select a tile, then tap/.test(message)){
+    const toast=$('mobile-toast');
+    toast.textContent=message;
+    toast.classList.add('visible');
+    window.clearTimeout(say.toastTimer);
+    say.toastTimer=window.setTimeout(()=>toast.classList.remove('visible'),2400);
+  }
+}
 
 const HAPTICS_KEY='jargon.haptics.v1';
 let hapticsEnabled=safeStorage.get(HAPTICS_KEY)==='on';
@@ -408,6 +419,8 @@ function render(){
   $('opponent-mode').value=opponentMode;
   $('bot-level-wrap').hidden=opponentMode!=='computer';
   $('bot-level').value=botLevel;
+  const modeLabel=$('mobile-game-type');
+  if(modeLabel)modeLabel.textContent=(state.mode==='blocks'?'Block Flip':'Classic')+' · '+(opponentMode==='computer'?'Computer':'Pass & Play');
   document.body.classList.toggle('bot-turn',opponentMode==='computer'&&state.turn===1);
   const canFlip=state.mode==='blocks'&&!swapping&&selected!==null&&state.racks[state.turn].some(t=>t.id===selected&&t.alternate&&!t.blank);
   const flipBtn=$('flip');flipBtn.hidden=state.mode!=='blocks';flipBtn.disabled=!canFlip||state.finished;
@@ -420,7 +433,7 @@ $('theme').lastElementChild.textContent=theme==='playful'?'Playful':'Sophisticat
     moveHeading.textContent=state.finished?'Beautifully played.':thinking?'The computer is thinking…':draft.length?'A word in progress.':'Make your move.';
     $('move-lede').textContent=state.finished?'Every word counted.':thinking?'Your letters will be here when it finishes.':draft.length?'Review your letters, then play when you are ready.':'A little word magic, whenever you are ready.';
   }
-  const board=$('board');const hadBoardFocus=board.contains(document.activeElement);board.replaceChildren();for(let r=0;r<SIZE;r++)for(let c=0;c<SIZE;c++){const el=document.createElement('button');el.type='button';el.className='sq';el.tabIndex=(r*SIZE+c===activeCell)?0:-1;el.setAttribute('role','gridcell');el.setAttribute('aria-label',`Row ${r+1}, column ${c+1}`);const fixed=state.board[r][c],pending=tileAt(r,c),bonus=PREMIUM[r][c];if(bonus)el.classList.add('premium-'+bonus);if(r===7&&c===7)el.classList.add('center');if(fixed){el.classList.add('occupied');el.append(block({...fixed.tile,flipped:!!fixed.flipped},'',fixed.as));el.setAttribute('aria-label',`Row ${r+1}, column ${c+1}, ${fixed.as}, ${fixed.points ?? fixed.tile.points} points${fixed.flipped?', alternate face':''}`);}else if(pending){el.classList.add('occupied');const tile=state.racks[state.turn].find(t=>t.id===pending.tileId);if(tile)el.append(block(tile,'placed'+(dropTile===tile.id?' is-dropping':''),pending.as||tileFace(tile)));el.setAttribute('aria-label',`Pending ${tile?tileFace(tile):''} at row ${r+1}, column ${c+1}; tap to recall`);}else if(bonus){const b=document.createElement('span');b.className='bonus';b.textContent=r===7&&c===7?'★':bonus;el.append(b);}if(cursorTarget?.row===r&&cursorTarget.col===c&&!fixed&&!pending){
+  const board=$('board');const hadBoardFocus=board.contains(document.activeElement);board.replaceChildren();const boardFragment=document.createDocumentFragment();for(let r=0;r<SIZE;r++)for(let c=0;c<SIZE;c++){const el=document.createElement('button');el.type='button';el.className='sq';el.tabIndex=(r*SIZE+c===activeCell)?0:-1;el.setAttribute('role','gridcell');el.setAttribute('aria-label',`Row ${r+1}, column ${c+1}`);const fixed=state.board[r][c],pending=tileAt(r,c),bonus=PREMIUM[r][c];if(bonus)el.classList.add('premium-'+bonus);if(r===7&&c===7)el.classList.add('center');if(fixed){el.classList.add('occupied');el.append(block({...fixed.tile,flipped:!!fixed.flipped},'',fixed.as));el.setAttribute('aria-label',`Row ${r+1}, column ${c+1}, ${fixed.as}, ${fixed.points ?? fixed.tile.points} points${fixed.flipped?', alternate face':''}`);}else if(pending){el.classList.add('occupied');const tile=state.racks[state.turn].find(t=>t.id===pending.tileId);if(tile)el.append(block(tile,'placed'+(dropTile===tile.id?' is-dropping':''),pending.as||tileFace(tile)));el.setAttribute('aria-label',`Pending ${tile?tileFace(tile):''} at row ${r+1}, column ${c+1}; tap to recall`);}else if(bonus){const b=document.createElement('span');b.className='bonus';b.textContent=r===7&&c===7?'★':bonus;el.append(b);}if(cursorTarget?.row===r&&cursorTarget.col===c&&!fixed&&!pending){
     el.classList.add('active-cursor',placementDirection==='vertical'?'dir-vertical':'dir-horizontal');
     const marker=document.createElement('span');marker.className='cursor-arrow';marker.setAttribute('aria-hidden','true');
     marker.innerHTML=placementDirection==='vertical'
@@ -429,9 +442,10 @@ $('theme').lastElementChild.textContent=theme==='playful'?'Playful':'Sophisticat
     el.append(marker);
     el.setAttribute('aria-label',el.getAttribute('aria-label')+', active '+(placementDirection==='vertical'?'down':'across')+' placement cursor, tap again to change direction');
   }
-  el.addEventListener('click',()=>{if(el===suppressedClickOrigin&&performance.now()<suppressedClickUntil)return;tapSquare(r,c);});if(pending)el.addEventListener('pointerdown',event=>startTileDrag(event,pending.tileId,'board'));board.append(el);}
+  el.addEventListener('click',()=>{if(el===suppressedClickOrigin&&performance.now()<suppressedClickUntil)return;tapSquare(r,c);});if(pending)el.addEventListener('pointerdown',event=>startTileDrag(event,pending.tileId,'board'));boardFragment.append(el);}
+  board.append(boardFragment);
   if(hadBoardFocus)board.children[activeCell]?.focus({preventScroll:true});
-  const rack=$('rack');rack.replaceChildren();for(const tile of state.racks[state.turn]){if(draft.some(p=>p.tileId===tile.id))continue;const b=block(tile,selected===tile.id?'selected':'');b.dataset.tileId=tile.id;b.setAttribute('aria-keyshortcuts','Alt+ArrowLeft Alt+ArrowRight');b.addEventListener('pointerdown',event=>startTileDrag(event,tile.id,'rack'));if(flipTile===tile.id)b.classList.add('is-flipping');if(shuffleMotion){b.classList.add('is-shuffling');b.style.setProperty('--tile-index',rack.children.length);}b.setAttribute('role','button');b.setAttribute('tabindex','0');b.setAttribute('aria-label',`${tile.blank?'Blank':tileFace(tile)}, ${tileValue(tile)} points${tile.flipped?', flipped alternate face':''}${selected===tile.id?', selected':''}`);const choose=()=>{haptic('tap');const now=performance.now();const repeat=!swapping&&lastRackTap&&lastRackTap.id===tile.id&&now-lastRackTap.at<400;lastRackTap={id:tile.id,at:now};if(repeat&&autoPlaceTile(tile.id))return;if(swapping){if(!swapIds.has(tile.id))swapIds.add(tile.id);else swapIds.delete(tile.id);say(`${swapIds.size} tile(s) selected to swap. Tap Swap again to confirm.`);}else{
+  const rack=$('rack');rack.replaceChildren();const rackFragment=document.createDocumentFragment();for(const tile of state.racks[state.turn]){if(draft.some(p=>p.tileId===tile.id))continue;const b=block(tile,selected===tile.id?'selected':'');b.dataset.tileId=tile.id;b.setAttribute('aria-keyshortcuts','Alt+ArrowLeft Alt+ArrowRight');b.addEventListener('pointerdown',event=>startTileDrag(event,tile.id,'rack'));if(flipTile===tile.id)b.classList.add('is-flipping');if(shuffleMotion){b.classList.add('is-shuffling');b.style.setProperty('--tile-index',rackFragment.childElementCount);}b.setAttribute('role','button');b.setAttribute('tabindex','0');b.setAttribute('aria-label',`${tile.blank?'Blank':tileFace(tile)}, ${tileValue(tile)} points${tile.flipped?', flipped alternate face':''}${selected===tile.id?', selected':''}`);const choose=()=>{haptic('tap');const now=performance.now();const repeat=!swapping&&lastRackTap&&lastRackTap.id===tile.id&&now-lastRackTap.at<400;lastRackTap={id:tile.id,at:now};if(repeat&&autoPlaceTile(tile.id))return;if(swapping){if(!swapIds.has(tile.id))swapIds.add(tile.id);else swapIds.delete(tile.id);say(`${swapIds.size} tile(s) selected to swap. Tap Swap again to confirm.`);}else{
     selected=selected===tile.id?null:tile.id;
     if(selected!==null&&cursorTarget){
       const target=cursorTarget;
@@ -451,7 +465,8 @@ $('theme').lastElementChild.textContent=theme==='playful'?'Playful':'Sophisticat
       return;
     }
     if(e.key==='Enter'||e.key===' '){e.preventDefault();choose();}
-  });if(swapIds.has(tile.id))b.classList.add('selected');rack.append(b);}
+  });if(swapIds.has(tile.id))b.classList.add('selected');rackFragment.append(b);}
+  rack.append(rackFragment);
   $('history').replaceChildren();const items=state.history.slice(-8).reverse();if(!items.length){const li=document.createElement('li');li.textContent='No moves yet. The board is yours!';$('history').append(li);}for(const m of items){const li=document.createElement('li');li.textContent=`P${m.player+1} ${m.kind==='play'?`${m.words.join(' + ')} · +${m.score}`:m.kind}`;$('history').append(li);}
   $('player1').querySelector('.player-label').textContent=opponentMode==='computer'?'COMPUTER':'PLAYER TWO';
   $('player0').querySelector('.player-label').textContent=opponentMode==='computer'?'YOU':'PLAYER ONE';
@@ -612,5 +627,63 @@ $('import-file').addEventListener('change',async e=>{
   }catch(error){say('Import failed: '+error.message);}finally{e.target.value='';}
 });
 $('export').addEventListener('click',()=>{const json=JSON.stringify({version:2,exportedAt:new Date().toISOString(),game:state,draft,opponent:opponentMode},null,2);const url=URL.createObjectURL(new Blob([json],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='jargon-save.json';a.click();URL.revokeObjectURL(url);say('Game exported as JSON.');});
+
+/* Mobile interface: move the exact existing game selectors into a modal sheet.
+   No duplicated state or reimplemented game settings. */
+const mobileMedia=window.matchMedia('(max-width:600px)');
+const mobileMenu=$('mobile-menu'),mobileSettingsButton=$('mobile-settings');
+const modeStrip=$('mode-strip'),mobileModeSlot=$('mobile-mode-slot');
+function syncMobileLayout(){
+  if(mobileMedia.matches){
+    if(modeStrip.parentElement!==mobileModeSlot)mobileModeSlot.append(modeStrip);
+  } else {
+    if(mobileMenu.open)mobileMenu.close();
+    const shell=document.querySelector('.shell');
+    if(modeStrip.parentElement!==shell)shell.insertBefore(modeStrip,document.querySelector('main'));
+  }
+}
+function updateMobileSound(){
+  $('mobile-audio').setAttribute('aria-pressed',String(soundEnabled));
+  $('mobile-audio-label').textContent='Relaxing sound: '+(soundEnabled?'On':'Off');
+}
+function closeMobileMenu(restoreFocus=true){
+  if(mobileMenu.open)mobileMenu.close();
+  mobileSettingsButton.setAttribute('aria-expanded','false');
+  if(restoreFocus&&mobileMedia.matches)mobileSettingsButton.focus({preventScroll:true});
+}
+mobileSettingsButton.addEventListener('click',()=>{
+  syncMobileLayout();
+  updateMobileSound();
+  mobileMenu.showModal();
+  mobileSettingsButton.setAttribute('aria-expanded','true');
+  $('mobile-menu-close').focus({preventScroll:true});
+});
+mobileMenu.addEventListener('close',()=>{
+  mobileSettingsButton.setAttribute('aria-expanded','false');
+});
+$('mobile-menu-close').addEventListener('click',()=>closeMobileMenu());
+$('mobile-audio').addEventListener('click',()=>{
+  $('audio-toggle').click();
+  updateMobileSound();
+});
+$('mobile-theme').addEventListener('click',()=>{
+  $('theme').click();
+  $('mobile-theme').querySelector('span').textContent='Appearance: '+(theme==='playful'?'Playful':'Sophisticated');
+});
+$('mobile-rules').addEventListener('click',()=>{
+  closeMobileMenu(false);
+  $('rules').click();
+});
+for(const [mobile,desktop] of [['mobile-export','export'],['mobile-import','import'],['mobile-reset','reset']]){
+  $(mobile).addEventListener('click',()=>{
+    closeMobileMenu(false);
+    $(desktop).click();
+  });
+}
+if(mobileMedia.addEventListener)mobileMedia.addEventListener('change',syncMobileLayout);
+else window.addEventListener('resize',syncMobileLayout);
+syncMobileLayout();
+updateMobileSound();
+
 render();document.body.classList.add('js-ready');say(opponentMode==='computer'?'Play a word to take on the computer.':'Drag letters onto the board, or tap to place them.');if(opponentMode==='computer'&&state.turn===1)scheduleBotTurn();
 if(!safeStorage.set('__jargon_storage_check','1'))say('You can play here, but this file viewer may not save progress. For reliable saving, open Jargon in Safari.');else safeStorage.remove('__jargon_storage_check');

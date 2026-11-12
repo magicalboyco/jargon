@@ -38,7 +38,13 @@ with sync_playwright() as p:
         assert 'Jargon Fraunces' in font['display'],font
         assert font['dictionarySize']==169266,font
         for theme in ('sophisticated','playful'):
-            if theme=='playful':page.locator('#theme').click()
+            if theme=='playful':
+                if w<=600:
+                    page.locator('#mobile-settings').click()
+                    page.locator('#mobile-theme').click()
+                    page.locator('#mobile-menu-close').click()
+                else:
+                    page.locator('#theme').click()
             assert page.locator('#board .sq').count()==225
             assert page.locator('#rack .block').count()==7
             assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')
