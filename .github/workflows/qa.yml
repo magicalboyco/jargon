@@ -38,6 +38,9 @@ jobs:
       - name: Workshop visual, layout, reduced-motion checks
         run: python tests/workshop_visual.py
 
+      - name: Premium responsive play surface and options checks
+        run: python tests/premium_layout_smoke.py
+
       - name: ENABLE2K dictionary and legacy compatibility
         run: python tests/dictionary_smoke.py
       - name: Self-hosted Fraunces and mobile screenshots
