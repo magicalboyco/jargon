@@ -648,6 +648,7 @@ function updateMobileSound(){
 }
 function closeMobileMenu(restoreFocus=true){
   if(mobileMenu.open)mobileMenu.close();
+  mobileSettingsButton.setAttribute('aria-expanded','false');
   if(restoreFocus&&mobileMedia.matches)mobileSettingsButton.focus({preventScroll:true});
 }
 mobileSettingsButton.addEventListener('click',()=>{
