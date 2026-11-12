@@ -39,10 +39,20 @@ with sync_playwright() as playwright:
         if width>=700:
             assert metrics["rack"]["left"]>=metrics["board"]["right"]-2,(width,height,metrics)
             assert abs(metrics["rack"]["top"]-metrics["board"]["top"])<8,(width,height,metrics)
-        page.locator("details.game-options summary").click()
-        assert page.locator("#export").is_visible()
-        assert page.locator("#import").is_visible()
-        assert page.locator("#reset").is_visible()
+        if width<=600:
+            page.locator("#mobile-settings").click()
+            assert page.locator("#mobile-menu").is_visible()
+            assert page.locator("#game-mode").is_visible()
+            assert page.locator("#opponent-mode").is_visible()
+            assert page.locator("#mobile-export").is_visible()
+            assert page.locator("#mobile-import").is_visible()
+            assert page.locator("#mobile-reset").is_visible()
+            page.locator("#mobile-menu-close").click()
+        else:
+            page.locator("details.game-options summary").click()
+            assert page.locator("#export").is_visible()
+            assert page.locator("#import").is_visible()
+            assert page.locator("#reset").is_visible()
         assert not errors,errors
         print(f"PASS premium play surface {width}x{height}: layout, color separation, actions, and private save controls")
         context.close()
